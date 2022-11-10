@@ -1,0 +1,21 @@
+apply plugin: "java"
+apply from: "${rootProject.projectDir}/gradle/java.gradle"
+
+archivesBaseName = 'immersive-audio-sfx-openal'
+version = rootProject.version
+group 'moodss.ia'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation project(":components:sfx")
+
+    implementation "it.unimi.dsi:fastutil:8.5.6"
+    implementation "org.lwjgl:lwjgl:3.3.1"
+    implementation "org.lwjgl:lwjgl-openal:3.3.1"
+    implementation "org.apache.commons:commons-lang3:3.12.0"
+
+    compileOnly "org.jetbrains:annotations:23.0.0"
+}

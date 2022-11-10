@@ -1,0 +1,20 @@
+{
+  "package": "moodss.ia.mixins",
+  "required": true,
+  "compatibilityLevel": "JAVA_17",
+  "injectors": {
+	"defaultRequire": 1
+  },
+  "overwrites": {
+	"conformVisibility": true
+  },
+  "client": [
+	"DebugRendererMixin",
+	"SoundEngineMixin",
+	"SourceMixin"
+  ],
+  "mixins": [
+	"VoxelShapeAccessor",
+	"VoxelShapeMixin"
+  ]
+}

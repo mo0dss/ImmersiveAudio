@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "id": "ia",
+  "version": "${version}",
+  "name": "Immersive Audio",
+  "description": "",
+  "authors": [
+    "Mo0dss"
+  ],
+  "contact": {
+    "sources": "",
+    "issues": ""
+  },
+  "license": "LGPL-3.0-only",
+  "icon": "assets/ia/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "moodss.ia.ImmersiveAudioMod"
+    ]
+  },
+  "mixins": [
+    "ia.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.12.0"
+  }
+}

@@ -1,0 +1,23 @@
+apply plugin: "java"
+apply from: "${rootProject.projectDir}/gradle/java.gradle"
+
+archivesBaseName = project.archives_base_name
+version = getVersion()
+group = project.maven_group
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+}
+
+String getVersion() {
+    String version = "${project.mod_version}+mc${project.minecraft_version}"
+
+    if (findProperty("releaseType") != "stable") {
+        version += "-unstable"
+    }
+
+    return version
+}

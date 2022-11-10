@@ -1,0 +1,48 @@
+plugins {
+    id 'fabric-loom' version '1.0-SNAPSHOT'
+    id 'io.github.juuxel.loom-quiltflower' version '1.7.2'
+}
+
+apply from: "${rootProject.projectDir}/gradle/fabric.gradle"
+apply from: "${rootProject.projectDir}/gradle/java.gradle"
+
+archivesBaseName = project.archives_base_name + "-fabric"
+version = getVersion()
+group = project.maven_group
+
+configurations {
+    includeImplementation
+
+    include.extendsFrom includeImplementation
+
+    implementation.extendsFrom includeImplementation
+}
+
+repositories {
+    mavenCentral()
+
+    maven {
+        url = "https://api.modrinth.com/maven"
+    }
+}
+
+dependencies {
+    //to change the versions see the gradle.properties file
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+
+    modImplementation fabricApi.module("fabric-api-base", project.fabric_version)
+    modImplementation fabricApi.module("fabric-command-api-v2", project.fabric_version)
+    modImplementation fabricApi.module("fabric-lifecycle-events-v1", project.fabric_version)
+
+    modImplementation "maven.modrinth:spark:1.9.45-fabric"
+
+    // Because we need the subprojects to be build as jars prior to their inclusion, we need to separate them to
+    // order them correctly.
+    implementation project(":components").subprojects
+    include project(":components").subprojects
+
+    includeImplementation project(":common")
+
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+}

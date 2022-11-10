@@ -1,0 +1,49 @@
+package moodss.ia.sfx.api.types;
+
+public enum EAXReverbProperties {
+    DENSITY,
+
+    DIFFUSION,
+
+    GAIN,
+
+    GAIN_HF,
+
+    GAIN_LF,
+
+    DECAY_TIME,
+
+    DECAY_RATIO_HF,
+
+    DECAY_RATIO_LF,
+
+    REFLECTIONS_GAIN,
+
+    REFLECTIONS_DELAY,
+
+    REFLECTIONS_PAN,
+
+    LATE_GAIN,
+
+    LATE_DELAY,
+
+    LATE_PAN,
+
+    ECHO_TIME,
+
+    ECHO_DEPTH,
+
+    MODULATION_TIME,
+
+    MODULATION_DEPTH,
+
+    AIR_ABSORPTION_GAIN_HF,
+
+    REFERENCE_HF,
+
+    REFERENCE_LF,
+
+    ROOM_ROLLOFF_FACTOR,
+
+    DECAY_LIMIT_HF
+}
