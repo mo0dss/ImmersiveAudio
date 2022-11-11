@@ -4,6 +4,7 @@ import moodss.ia.mixin.VoxelShapeExt;
 import moodss.ia.mixins.VoxelShapeAccessor;
 import moodss.ia.ray.BlockCollisionObelisk;
 import moodss.ia.ray.CollisionObeliskHelper;
+import moodss.ia.ray.Ray;
 import moodss.plummet.math.vec.Vector3;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
@@ -25,11 +26,11 @@ public class RaycastUtils {
         if(result != null) {
             BlockCollisionObelisk boundBackResult = raycastVoxelShape(state.getRaycastShape(world, pos), start, end, pos);
             if(boundBackResult != null) {
-                Vector3 boundBackReflective = Vector3.subtract(boundBackResult.getOrigin(), start);
-                Vector3 reflective = Vector3.subtract(result.getOrigin(), start);
+                float boundBackSqr = boundBackResult.getRay().dot(start);
+                float reflectiveSqr = result.getRay().dot(start);
 
-                if(boundBackReflective.lengthSquared() < reflective.lengthSquared()) {
-                    return result.withSide(boundBackResult.getDirection());
+                if(boundBackSqr < reflectiveSqr) {
+                    return result.withRay(boundBackResult.getRay());
                 }
             }
         }
@@ -55,8 +56,9 @@ public class RaycastUtils {
                             VoxelShapeExt.getCoordIdx(shape, Direction.Axis.Z, offset.getZ() - pos.getZ())
                     )
                     ? BlockCollisionObelisk.create(
-                    offset,
-                    DirectionUtil.get(DirectionUtil.getFacing(mid).getOpposite()),
+                    new Ray(offset,
+                            DirectionUtil.get(DirectionUtil.getFacing(mid).getOpposite()),
+                            true),
                     pos) : CollisionObeliskHelper.raycast(shape.getBoundingBoxes(), start, end, pos);
         }
 

@@ -1,16 +1,12 @@
 package moodss.ia.ray;
 
-import moodss.plummet.math.vec.Vector3;
-
 public class CollisionObelisk {
 
-    private final Vector3 origin;
-    private final Vector3 direction;
+    private final Ray ray;
     private final Type type;
 
-    public CollisionObelisk(Vector3 origin, Vector3 direction, Type type) {
-        this.origin = origin;
-        this.direction = direction;
+    public CollisionObelisk(Ray ray, Type type) {
+        this.ray = ray;
         this.type = type;
     }
 
@@ -18,12 +14,8 @@ public class CollisionObelisk {
         return type;
     }
 
-    public Vector3 getDirection() {
-        return direction;
-    }
-
-    public Vector3 getOrigin() {
-        return origin;
+    public Ray getRay() {
+        return ray;
     }
 
     public enum Type {

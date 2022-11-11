@@ -205,6 +205,11 @@ public class Vector3 {
         return new Vector3(left.getX() - right.getX(), left.getY() - right.getY(), left.getZ() - right.getZ());
     }
 
+    public static Vector3 subtract(Vector3 left, float amount)
+    {
+        return new Vector3(left.getX() - amount, left.getY() - amount, left.getZ() - amount);
+    }
+
     public static Vector3 subtract(Vector3 left, float rightX, float rightY, float rightZ)
     {
         return new Vector3(left.getX() - rightX, left.getY() - rightY, left.getZ() - rightZ);
@@ -264,6 +269,18 @@ public class Vector3 {
     public static float distanceSquared(Vector3 position1, Vector3 position2)
     {
         return Vector3.subtract(position1, position2).lengthSquared();
+    }
+
+    /**
+     * Calculates the distance between two vectors.
+     *
+     * @param position1 The first vector to calculate the squared distance to the second vector.
+     * @param position2 The second vector to calculate the squared distance to the first vector.
+     * @return The squared distance between the two vectors.
+     */
+    public static float distance(Vector3 position1, Vector3 position2)
+    {
+        return Vector3.subtract(position1, position2).length();
     }
 
     /**

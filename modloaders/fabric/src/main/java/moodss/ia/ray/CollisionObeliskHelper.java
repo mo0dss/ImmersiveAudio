@@ -23,7 +23,7 @@ public class CollisionObeliskHelper {
         if(!direction.equals(Vector3.ZERO)) {
             float distance = traceDistanceResult[0];
 
-            return BlockCollisionObelisk.create(Vector3.add(from, distance * x, distance * y, distance * z), direction, pos);
+            return BlockCollisionObelisk.create(new Ray(Vector3.add(from, distance * x, distance * y, distance * z), direction, true), pos);
         }
 
         return null;

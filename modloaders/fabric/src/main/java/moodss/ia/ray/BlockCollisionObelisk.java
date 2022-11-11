@@ -6,21 +6,21 @@ import net.minecraft.util.math.BlockPos;
 public class BlockCollisionObelisk extends CollisionObelisk {
     private final BlockPos pos;
 
-    public static BlockCollisionObelisk create(Vector3 origin, Vector3 direction, BlockPos pos) {
-        return new BlockCollisionObelisk(origin, direction, pos, CollisionObelisk.Type.BLOCK);
+    public static BlockCollisionObelisk create(Ray ray, BlockPos pos) {
+        return new BlockCollisionObelisk(ray, pos, CollisionObelisk.Type.BLOCK);
     }
 
-    public static BlockCollisionObelisk createMissed(Vector3 origin, Vector3 direction, BlockPos pos) {
-        return new BlockCollisionObelisk(origin, direction, pos, CollisionObelisk.Type.MISS);
+    public static BlockCollisionObelisk createMissed(Ray ray, BlockPos pos) {
+        return new BlockCollisionObelisk(ray, pos, CollisionObelisk.Type.MISS);
     }
 
-    public BlockCollisionObelisk(Vector3 origin, Vector3 direction, BlockPos pos, CollisionObelisk.Type type) {
-        super(origin, direction, type);
+    public BlockCollisionObelisk(Ray ray, BlockPos pos, CollisionObelisk.Type type) {
+        super(ray, type);
         this.pos = pos;
     }
 
-    public BlockCollisionObelisk withSide(Vector3 side) {
-        return new BlockCollisionObelisk(this.getOrigin(), side, this.pos, this.getType());
+    public BlockCollisionObelisk withRay(Ray ray) {
+        return new BlockCollisionObelisk(ray, this.pos, this.getType());
     }
 
     public BlockPos getPos() {

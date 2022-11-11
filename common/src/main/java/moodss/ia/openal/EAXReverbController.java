@@ -1,8 +1,9 @@
 package moodss.ia.openal;
 
 import moodss.ia.ray.CollisionObelisk;
-import moodss.ia.ray.RaytracedAudio;
+import moodss.ia.ray.BiDirectionalPathtracer;
 import moodss.ia.ray.v2.BiDirectionalPathStrengthManager;
+import moodss.ia.ray.v2.DirectionalPathtracer;
 import moodss.ia.sfx.api.AudioException;
 import moodss.ia.sfx.api.device.AudioDevice;
 import moodss.ia.sfx.api.device.AudioDeviceContext;
@@ -31,7 +32,7 @@ public class EAXReverbController {
 
     private final AuxiliaryEffectManager auxiliaryEffectManager;
 
-    private final RaytracedAudio audio;
+    private final BiDirectionalPathtracer audio;
 
     public EAXReverbController(AudioDevice device, AuxiliaryEffectManager auxiliaryEffectManager, ImmersiveAudioConfig.Raytracing raytracing) {
         this.device = device;
@@ -58,7 +59,7 @@ public class EAXReverbController {
             }
         });
 
-        this.audio = new RaytracedAudio(raytracing);
+        this.audio = new BiDirectionalPathtracer(raytracing);
     }
 
     public <T> Vector3 computeOriginFor(
@@ -75,7 +76,7 @@ public class EAXReverbController {
         float[] gain = new float[this.auxiliaryEffectManager.getMaxAuxiliaries()];
 
         CompletableFuture<Vector3> computedOrigin = this.audio.computeOrigin(origin, listener, traceFunc, reflectivityFunc, bounceReflectivityRatio, gain, maxDistance, executor);
-        BiDirectionalPathStrengthManager reflectedAudio = this.audio.getPathtracer();
+        BiDirectionalPathtracer.StrengthManager reflectedAudio = this.audio.getStrengthManager();
 
         for (int i = 0; i < bounceReflectivityRatio.length; i++) {
             bounceReflectivityRatio[i] = bounceReflectivityRatio[i] / maxRayCount;
@@ -109,7 +110,7 @@ public class EAXReverbController {
         return computedOrigin.join();
     }
 
-    public RaytracedAudio getAudio() {
+    public BiDirectionalPathtracer getAudio() {
         return audio;
     }
 

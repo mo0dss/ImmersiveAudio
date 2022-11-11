@@ -75,6 +75,22 @@ public class Ray {
     }
 
     /**
+     * Find minimum distance from query point to ray
+     *
+     * @param point query Point
+     * @return squared distance to Ray
+     */
+    public float distanceTo(Vector3 point) {
+        float dot = this.dot(point);
+        if(dot < 0) {
+            return Vector3.distance(this.origin, point);
+        }
+
+        Vector3 projectionPoint = Vector3.modulate(Vector3.add(this.origin, dot), this.direction);
+        return projectionPoint.distanceTo(point);
+    }
+
+    /**
      * Find closest point on ray to query point
      * @param point query point
      * @return closest point on Ray
@@ -86,6 +102,20 @@ public class Ray {
         }
 
         return Vector3.modulate(Vector3.add(this.origin, dot), this.direction);
+    }
+
+    /**
+     * Find furthest point on ray to query point
+     * @param point query point
+     * @return furthest point on Ray
+     */
+    public Vector3 furthestPoint(Vector3 point) {
+        float dot = this.dot(point);
+        if(dot < 0) {
+            return this.origin;
+        }
+
+        return Vector3.modulate(Vector3.subtract(this.origin, dot), this.direction);
     }
 
     public static Vector3 getOrigin(Ray ray) {

@@ -2,6 +2,7 @@ package moodss.ia.util;
 
 import moodss.ia.ray.BlockCollisionObelisk;
 import moodss.ia.ray.CollisionObelisk;
+import moodss.ia.ray.Ray;
 import moodss.plummet.math.vec.Vector3;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
@@ -26,7 +27,7 @@ public class BlockTraceCollisionUtil {
     }
 
     public static CollisionObelisk createCollision(World world, Vector3 from, Vector3 to) {
-        CollisionObelisk missed = new CollisionObelisk(from, Vector3.ZERO, CollisionObelisk.Type.MISS);
+        CollisionObelisk missed = new CollisionObelisk(new Ray(from, Vector3.ZERO, true), CollisionObelisk.Type.MISS);
         if(world == null) {
             return missed;
         }
@@ -68,8 +69,8 @@ public class BlockTraceCollisionUtil {
                         return fluidResult;
                     }
 
-                    float blockDist = from.distanceToSquared(result.getOrigin());
-                    float fluidDist = from.distanceToSquared(fluidResult.getOrigin());
+                    float blockDist = result.getRay().distanceToSquared(from);
+                    float fluidDist = fluidResult.getRay().distanceToSquared(from);
 
                     return blockDist <= fluidDist ? result : fluidResult;
                 }

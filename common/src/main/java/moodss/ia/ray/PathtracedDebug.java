@@ -8,29 +8,32 @@ import java.util.function.Consumer;
 
 public class PathtracedDebug {
 
-    private final List<Ray> rays;
+    private final Ray[] rays;
+    private int nextRayIdx;
 
-    public PathtracedDebug(int maxRayCount) {
-        this.rays = new ObjectArrayList<>();
+    public PathtracedDebug(int maxRayCount, int maxRayBounceCount) {
+        this.rays = new Ray[maxRayCount * maxRayBounceCount];
     }
 
     public void addRay(Vector3 start, Vector3 end, int color) {
-        this.rays.add(new Ray(start, end, color));
+        this.rays[this.nextRayIdx++] = new Ray(start, end, color);
     }
 
     public void clear() {
         synchronized (this.rays) {
-            this.rays.clear();
+            Arrays.fill(this.rays, null);
         }
     }
 
     public void forEachRay(Consumer<Ray> consumer) {
         synchronized (this.rays) {
-            this.rays.forEach(consumer);
+            for(Ray ray : this.rays) {
+                consumer.accept(ray);
+            }
         }
     }
 
-    public List<Ray> getRaySet() {
+    public Ray[] getRays() {
         return this.rays;
     }
 
