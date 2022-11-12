@@ -17,16 +17,24 @@ public class DirectionalPathtracer {
     protected final int maxRayCount;
 
     /**
+     * Additional amount of rays allowed
+     */
+    protected final int additionalRays;
+
+    /**
      * Strength manager for each ray
      */
     protected final StrengthManager strengthManager;
 
     protected final float MAX_RAY_COUNT_NORM;
 
-    public DirectionalPathtracer(int maxRayCount, StrengthManager strengthManager) {
+    public DirectionalPathtracer(int maxRayCount, int additionalRays, StrengthManager strengthManager) {
         this.maxRayCount = maxRayCount;
         this.strengthManager = strengthManager;
-        this.MAX_RAY_COUNT_NORM = 1.0F / (float)this.maxRayCount;
+
+        this.additionalRays = additionalRays;
+
+        MAX_RAY_COUNT_NORM = 1.0F / this.maxRayCount;
     }
 
     public CompletableFuture<Vector3> computePathtrace(Vector3 origin, Vector3 listener,
@@ -40,25 +48,27 @@ public class DirectionalPathtracer {
                 () -> {
                     float phi = MathUtils.PHI;
 
-                    for(int rayUnit = 0; rayUnit < this.maxRayCount; rayUnit++) {
-                        float rayAngle = rayUnit * this.MAX_RAY_COUNT_NORM;
+                    for(int additionalRayUnit = 0; additionalRayUnit < this.additionalRays; additionalRayUnit++) {
+                        for(int rayUnit = 0; rayUnit < this.maxRayCount; rayUnit++) {
+                            float rayAngle = rayUnit * this.MAX_RAY_COUNT_NORM;
 
-                        float longitude = phi * rayUnit;
-                        float latitude = (float) Math.asin(rayAngle * 2.0F - 1.0F);
+                            float longitude = phi * rayUnit;
+                            float latitude = (float) Math.asin(rayAngle * 2.0F - 1.0F);
 
-                        Ray ray = new Ray(
-                                origin,
-                                new Vector3(
-                                        (float)(Math.cos(latitude) * Math.cos(longitude)),
-                                        (float)(Math.cos(latitude) * Math.sin(longitude)),
-                                        (float)Math.sin(latitude)
-                                ),
-                                true
-                        );
+                            Ray ray = new Ray(
+                                    origin,
+                                    new Vector3(
+                                            (float)(Math.cos(latitude) * Math.cos(longitude)),
+                                            (float)(Math.cos(latitude) * Math.sin(longitude)),
+                                            (float)Math.sin(latitude)
+                                    ),
+                                    true
+                            );
 
-                        Vector3 endPosition = ray.pointAt(maxDistance);
+                            Vector3 endPosition = ray.pointAt(maxDistance);
 
-                        this.onRay(ray, endPosition, listener, maxDistance, traceFunc);
+                            this.onRay(ray, endPosition, listener, maxDistance, traceFunc);
+                        }
                     }
 
                     return this.strengthManager.computePosition(origin, listener);

@@ -30,7 +30,7 @@ public class RaycastUtils {
                 float reflectiveSqr = result.ray().distanceToSquared(start);
 
                 if (boundBackSqr < reflectiveSqr) {
-                    return result.withRay(boundBackResult.ray());
+                    return result.withDirection(Ray.getDirection(boundBackResult.ray()), true);
                 }
             }
         }

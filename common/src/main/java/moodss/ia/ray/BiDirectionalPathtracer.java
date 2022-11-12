@@ -9,9 +9,13 @@ import java.util.function.BiFunction;
 public class BiDirectionalPathtracer extends DirectionalPathtracer {
     private final int maxRayBounceCount;
 
-    public BiDirectionalPathtracer(int maxRayCount, int maxRayBounceCount) {
-        super(maxRayCount, new StrengthManager(maxRayBounceCount * maxRayBounceCount));
+    private final int additionalRayBounces;
+
+    public BiDirectionalPathtracer(int maxRayCount, int maxRayBounceCount, int additionalRays, int additionalRayBounces) {
+        super(maxRayCount, additionalRays, new StrengthManager((additionalRays * maxRayCount) * (additionalRayBounces * maxRayBounceCount)));
         this.maxRayBounceCount = maxRayBounceCount;
+
+        this.additionalRayBounces = additionalRayBounces;
     }
 
     public CompletableFuture<Vector3> computePathtrace(
@@ -40,32 +44,35 @@ public class BiDirectionalPathtracer extends DirectionalPathtracer {
                 this.strengthManager.addEntry(firstSharedAirspaceVector, rayLength);
             }
 
-            for(int bounceUnit = 0; bounceUnit < this.maxRayBounceCount; bounceUnit++) {
-                Ray bounceRay = prevRay.reflect(prevTracedRay);
+            for(int additionalRayBounce = 0; additionalRayBounce < this.additionalRayBounces; additionalRayBounce++) {
 
-                Vector3 bounceEndPosition = bounceRay.pointAt(maxDistance);
-                RayHitResult bounceResult = traceFunc.apply(bounceRay, bounceEndPosition);
-                if (bounceResult.type() == RayHitResult.Type.MISS) {
-                    rayLength += prevTracedRay.distanceTo(listener);
+                for(int bounceUnit = 0; bounceUnit < this.maxRayBounceCount; bounceUnit++) {
+                    Ray bounceRay = prevRay.reflect(prevTracedRay);
 
-                    this.onRayBounceMiss(prevTracedRay, bounceEndPosition);
-                } else {
-                    rayLength += prevTracedRay.distanceTo(bounceResult.ray());
+                    Vector3 bounceEndPosition = bounceRay.pointAt(maxDistance);
+                    RayHitResult bounceResult = traceFunc.apply(bounceRay, bounceEndPosition);
+                    if (bounceResult.type() == RayHitResult.Type.MISS) {
+                        rayLength += prevTracedRay.distanceTo(listener);
 
-                    prevTracedRay = bounceResult.ray();
-                    prevRay = bounceRay;
+                        this.onRayBounceMiss(prevTracedRay, bounceEndPosition);
+                    } else {
+                        rayLength += prevTracedRay.distanceTo(bounceResult.ray());
 
-                    this.onRayBounceHit(bounceResult, prevTracedRay, Ray.getOrigin(bounceRay), bounceUnit);
+                        prevTracedRay = bounceResult.ray();
+                        prevRay = bounceRay;
 
-                    Vector3 sharedAirspaceVector = getClosestSharedAirspace(prevTracedRay, listener, traceFunc);
-                    if (sharedAirspaceVector != null) {
-                        this.strengthManager.addEntry(sharedAirspaceVector, rayLength);
+                        this.onRayBounceHit(bounceResult, prevTracedRay, Ray.getOrigin(bounceRay), bounceUnit);
+
+                        Vector3 sharedAirspaceVector = getClosestSharedAirspace(prevTracedRay, listener, traceFunc);
+                        if (sharedAirspaceVector != null) {
+                            this.strengthManager.addEntry(sharedAirspaceVector, rayLength);
+                        }
                     }
-                }
 
-                this.onRayBounceFinish(result, bounceUnit, rayLength);
-                if (bounceResult.type() == RayHitResult.Type.MISS) {
-                    break;
+                    this.onRayBounceFinish(result, bounceUnit, rayLength);
+                    if (bounceResult.type() == RayHitResult.Type.MISS) {
+                        break;
+                    }
                 }
             }
         }

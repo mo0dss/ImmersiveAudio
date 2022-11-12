@@ -11,7 +11,8 @@
   "client": [
 	"DebugRendererMixin",
 	"SoundEngineMixin",
-	"SourceMixin"
+	"SourceMixin",
+	"speedup.SoundEngineMixin"
   ],
   "mixins": [
 	"VoxelShapeAccessor",

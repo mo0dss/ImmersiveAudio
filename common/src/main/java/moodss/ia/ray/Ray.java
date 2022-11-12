@@ -74,7 +74,7 @@ public class Ray {
      * @return The reflected ray
      */
     public Ray reflect(Ray ray) {
-        return new Ray(ray.origin, Vector3.reflect(ray.direction, this.direction), true);
+        return new Ray(ray.origin, Vector3.reflect(this.direction, ray.direction), true);
     }
 
     /**

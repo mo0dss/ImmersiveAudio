@@ -76,7 +76,12 @@ public class ImmersiveAudioConfig {
         public int maxRayCount = 50;
         public int maxRayBounceCount = 25;
 
+        public int additionalRayCount = 3;
+        public int additionalRayBounceCount = 3;
+
         public float maxRayDistance = 256F;
+
+        public boolean showDebug = false;
 
         public float maxRayDistance(float audioSimulationDistance) {
             return Math.min(audioSimulationDistance, this.maxRayDistance);

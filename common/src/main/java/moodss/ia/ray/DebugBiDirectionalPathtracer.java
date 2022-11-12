@@ -15,9 +15,9 @@ public class DebugBiDirectionalPathtracer extends BiDirectionalPathtracer {
     private final PathtracedDebug debug;
 
     public DebugBiDirectionalPathtracer(ImmersiveAudioConfig.Raytracing raytracing) {
-        super(raytracing.maxRayCount, raytracing.maxRayBounceCount);
+        super(raytracing.maxRayCount, raytracing.additionalRayCount, raytracing.maxRayBounceCount, raytracing.additionalRayBounceCount);
 
-        this.debug = new PathtracedDebug(raytracing.maxRayCount, raytracing.maxRayBounceCount);
+        this.debug = new PathtracedDebug(raytracing.maxRayCount, raytracing.maxRayBounceCount, raytracing.additionalRayCount, raytracing.additionalRayBounceCount, raytracing.showDebug);
     }
 
     public PathtracedDebug getDebug() {

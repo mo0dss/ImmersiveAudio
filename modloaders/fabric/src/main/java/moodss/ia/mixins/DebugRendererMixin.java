@@ -1,6 +1,7 @@
 package moodss.ia.mixins;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import moodss.ia.ImmersiveAudio;
 import moodss.ia.ImmersiveAudioMod;
 import moodss.ia.ray.PathtracedAudio;
 import net.minecraft.client.render.*;
@@ -16,6 +17,10 @@ public class DebugRendererMixin {
 
     @Inject(method = "render", at = @At("HEAD"))
     private void onRender(MatrixStack matrices, VertexConsumerProvider.Immediate vertexConsumers, double cameraX, double cameraY, double cameraZ, CallbackInfo ci) {
+
+        if(!ImmersiveAudio.CONFIG.raytracing.showDebug) {
+            return;
+        }
 
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
         Tessellator tesselator = Tessellator.getInstance();

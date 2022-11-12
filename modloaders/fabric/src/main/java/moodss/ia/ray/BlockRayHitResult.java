@@ -1,5 +1,6 @@
 package moodss.ia.ray;
 
+import moodss.plummet.math.vec.Vector3;
 import net.minecraft.util.math.BlockPos;
 
 public class BlockRayHitResult extends RayHitResult {
@@ -18,8 +19,8 @@ public class BlockRayHitResult extends RayHitResult {
         this.pos = pos;
     }
 
-    public BlockRayHitResult withRay(Ray ray) {
-        return new BlockRayHitResult(ray, this.getPos(), this.type());
+    public BlockRayHitResult withDirection(Vector3 direction, boolean isNormalised) {
+        return new BlockRayHitResult(new Ray(Ray.getOrigin(this.ray()), direction, isNormalised), this.getPos(), this.type());
     }
 
     public BlockPos getPos() {

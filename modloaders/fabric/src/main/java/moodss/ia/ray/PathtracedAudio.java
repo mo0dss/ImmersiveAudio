@@ -20,7 +20,6 @@ public class PathtracedAudio extends DebugBiDirectionalPathtracer {
      */
     protected final float[] bounceReflectivityRatio;
 
-
     protected float[] gains;
 
     public PathtracedAudio(ImmersiveAudioConfig.Raytracing raytracing) {
@@ -92,6 +91,7 @@ public class PathtracedAudio extends DebugBiDirectionalPathtracer {
         this.onRayBounceFinish0((BlockRayHitResult)result, unit, overallRayLength);
     }
 
+    //TODO: Remake gain
     protected void onRayBounceFinish0(BlockRayHitResult result, int unit, float overallRayLength) {
         float blockReflectivity = ReflectivityUtil.getReflectivity0(result);
         float energyTowardsPlayer = 0.25F * (blockReflectivity * 0.75F + 0.25F);
