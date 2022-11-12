@@ -22,6 +22,15 @@ public class Ray {
     }
 
     /**
+     * Initialize Ray with origin and no direction
+     *
+     * @param origin Ray Origin Point
+     */
+    public Ray(Vector3 origin) {
+        this(origin, Vector3.ZERO, true);
+    }
+
+    /**
      * Initialize Ray with origin and direction
      *
      * @param origin Ray Origin Point
@@ -59,6 +68,16 @@ public class Ray {
     }
 
     /**
+     * Calculates the reflected ray for query ray
+     *
+     * @param ray query Ray
+     * @return The reflected ray
+     */
+    public Ray reflect(Ray ray) {
+        return new Ray(ray.origin, Vector3.reflect(ray.direction, this.direction), true);
+    }
+
+    /**
      * Find minimum squared distance from query point to ray
      *
      * @param point query Point
@@ -75,6 +94,16 @@ public class Ray {
     }
 
     /**
+     * Find minimum squared distance from query ray to ray
+     *
+     * @param ray query Ray
+     * @return squared distance to Ray
+     */
+    public float distanceToSquared(Ray ray) {
+        return this.distanceToSquared(ray.origin);
+    }
+
+    /**
      * Find minimum distance from query point to ray
      *
      * @param point query Point
@@ -88,6 +117,16 @@ public class Ray {
 
         Vector3 projectionPoint = Vector3.modulate(Vector3.add(this.origin, dot), this.direction);
         return projectionPoint.distanceTo(point);
+    }
+
+    /**
+     * Find minimum distance from query ray to ray
+     *
+     * @param ray query Ray
+     * @return squared distance to Ray
+     */
+    public float distanceTo(Ray ray) {
+        return this.distanceTo(ray.origin);
     }
 
     /**

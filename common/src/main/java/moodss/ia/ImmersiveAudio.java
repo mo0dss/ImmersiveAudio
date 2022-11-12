@@ -10,11 +10,8 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 public class ImmersiveAudio {
-
     public static AudioDevice DEVICE;
-
     public static ImmersiveAudioConfig CONFIG;
-
     public static EAXReverbController EAX_REVERB_CONTROLLER;
     public static AuxiliaryEffectManager AUXILIARY_EFFECT_MANAGER;
     public static EchoController ECHO_CONTROLLER;
@@ -47,7 +44,7 @@ public class ImmersiveAudio {
             EAX_REVERB_CONTROLLER.destroy();
         }
 
-        EAX_REVERB_CONTROLLER = new EAXReverbController(ImmersiveAudio.DEVICE, auxiliaryEffectManager, ImmersiveAudio.CONFIG.raytracing);
+        EAX_REVERB_CONTROLLER = new EAXReverbController(ImmersiveAudio.DEVICE, auxiliaryEffectManager);
     }
 
     private static void loadConfig(Path configPath) {
@@ -55,13 +52,13 @@ public class ImmersiveAudio {
             System.out.println("Loading config");
             CONFIG = ImmersiveAudioConfig.load(configPath);
         } catch (Throwable t) {
-            System.err.println("Failed to load configuration file for Sodium " + t);
+            System.err.println("Failed to load configuration file for Immersive Audio " + t);
             CONFIG = ImmersiveAudioConfig.defaults(configPath);
 
             try {
                 CONFIG.writeChanges();
-            } catch (IOException e) {
-                throw new RuntimeException("Failed to replace configuration file with known-good defaults", e);
+            } catch (IOException ex) {
+                throw new RuntimeException("Failed to replace configuration file with known-good defaults", ex);
             }
         }
     }

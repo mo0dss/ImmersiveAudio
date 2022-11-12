@@ -6,24 +6,31 @@ import moodss.ia.sfx.api.types.ALCToken;
 
 public class AuxiliaryEffectManager {
 
-    private final int maxAuxiliaries;
+    /**
+     * Max auxiliary effects the attached device can play
+     */
+    private final int maxAuxiliarySends;
 
+    /**
+     * Auxiliary effects
+     */
     private final AuxiliaryEffect[] effects;
 
     private final AudioDevice device;
 
     public AuxiliaryEffectManager(AudioDevice device, boolean sendAuto) {
         this.device = device;
-        this.maxAuxiliaries = device.getToken(ALCToken.MAX_AUXILIARY_SENDS);
-        this.effects = new AuxiliaryEffect[this.maxAuxiliaries];
 
-        for(int idx = 0; idx < this.effects.length; idx++) {
+        int maxAuxiliarySends = this.maxAuxiliarySends = device.getToken(ALCToken.MAX_AUXILIARY_SENDS);
+        this.effects = new AuxiliaryEffect[maxAuxiliarySends];
+
+        for(int idx = 0; idx < this.effects.length; ++idx) {
             this.effects[idx] = device.createAuxiliaryEffect(sendAuto);
         }
     }
 
     public int getMaxAuxiliaries() {
-        return this.maxAuxiliaries;
+        return this.maxAuxiliarySends;
     }
 
     public AuxiliaryEffect getAuxiliaryEffect(int idx) {
@@ -31,8 +38,8 @@ public class AuxiliaryEffectManager {
     }
 
     public void destroy() {
-        for (AuxiliaryEffect effect : this.effects) {
-            device.deleteAuxiliaryEffect(effect);
+        for(AuxiliaryEffect effect : this.effects) {
+            this.device.deleteAuxiliaryEffect(effect);
         }
     }
 }

@@ -1,10 +1,11 @@
 package moodss.ia.mixins;
 
 import moodss.ia.ImmersiveAudio;
+import moodss.ia.ImmersiveAudioMod;
+import moodss.ia.ray.PathtracedAudio;
 import moodss.ia.sfx.openal.source.AlSource;
 import moodss.ia.util.BlockTraceCollisionUtil;
 import moodss.ia.util.CameraUtil;
-import moodss.ia.util.ReflectivityUtil;
 import moodss.plummet.math.vec.Vector3;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.sound.Source;
@@ -27,26 +28,26 @@ public class SourceMixin {
 
     @Inject(method = "setPosition", at = @At("HEAD"), cancellable = true)
     private void onSetPosition(Vec3d pos, CallbackInfo ci) {
-        Vector3 position = new Vector3((float) pos.x, (float) pos.y, (float) pos.z);
+        Vector3 position = new Vector3((float)pos.x, (float)pos.y, (float)pos.z);
         Vector3 cameraPosition = CameraUtil.getActiveCameraPosition();
-        Vector3 computedOrigin = ImmersiveAudio.EAX_REVERB_CONTROLLER.computeOriginFor(
-                AlSource.wrap(this.pointer),
-                position,
-                cameraPosition,
-                BlockTraceCollisionUtil::createCollision,
-                ReflectivityUtil::getReflectivity,
-                ImmersiveAudio.CONFIG.world.maxAudioSimulationDistance(MinecraftClient.getInstance().options.getSimulationDistance().getValue()),
-                Util.getMainWorkerExecutor()
-        );
 
+        PathtracedAudio pathtracer = ImmersiveAudioMod.audioPathtracer();
         AlSource source = AlSource.wrap(this.pointer);
 
-        ImmersiveAudio.DEVICE.run(context -> {
-            if(!computedOrigin.equals(Vector3.ZERO)) {
-                System.out.println("Raytraced sound position : " + computedOrigin.toString());
-                context.setPosition(source, computedOrigin.getX(), computedOrigin.getY(), computedOrigin.getZ());
+        Vector3 computedPosition = pathtracer.pathtrace(
+                        position,
+                        cameraPosition,
+                        BlockTraceCollisionUtil::createCollision,
+                        ImmersiveAudio.CONFIG.world.maxAudioSimulationDistance(MinecraftClient.getInstance().options.getSimulationDistance().getValue()),
+                        Util.getMainWorkerExecutor()
+                )
+                .join();
 
-                Vector3 direction = Vector3.getFacing(computedOrigin);
+        ImmersiveAudio.DEVICE.run(context -> {
+            if (!computedPosition.equals(Vector3.ZERO)) {
+                context.setPosition(source, computedPosition.getX(), computedPosition.getY(), computedPosition.getZ());
+
+                Vector3 direction = Vector3.getFacing(computedPosition);
                 context.setDirection(source, direction.getX(), direction.getY(), direction.getZ());
 
                 ci.cancel();
@@ -61,7 +62,9 @@ public class SourceMixin {
         AL10.alSourcef(this.pointer, AL10.AL_REFERENCE_DISTANCE, ImmersiveAudio.CONFIG.world.minAudioSimulationDistance);
     }
 
-    @Inject(method = "play", at = @At("HEAD"))
+    @Inject(method = "play", at = @At("RETURN"))
     private void onPlay(CallbackInfo ci) {
+        AlSource source = AlSource.wrap(this.pointer);
+        ImmersiveAudio.DEVICE.run(context -> ImmersiveAudio.EAX_REVERB_CONTROLLER.applyToSource(context, ImmersiveAudio.AUXILIARY_EFFECT_MANAGER, source));
     }
 }

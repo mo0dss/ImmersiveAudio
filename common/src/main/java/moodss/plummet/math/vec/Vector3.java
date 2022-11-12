@@ -13,34 +13,34 @@ public class Vector3 {
     /**
      * Returns a positive X {@link #Vector3(float, float, float)}. (1,0,0)
      */
-    public static Vector3 POSITIVE_X = new Vector3(1.0F, 0.0F, 0.0F);
+    public static final Vector3 POSITIVE_X = new Vector3(1.0F, 0.0F, 0.0F);
 
     /**
      * Returns a positive Y {@link #Vector3(float, float, float)}. (0,1,0)
      */
-    public static Vector3 POSITIVE_Y = new Vector3(0.0F, 1.0F, 0.0F);
+    public static final Vector3 POSITIVE_Y = new Vector3(0.0F, 1.0F, 0.0F);
 
     /**
      * Returns a positive Z {@link #Vector3(float, float, float)}. (0,0,1)
      */
-    public static Vector3 POSITIVE_Z = new Vector3(0.0F, 0.0F, 1.0F);
+    public static final Vector3 POSITIVE_Z = new Vector3(0.0F, 0.0F, 1.0F);
 
     /**
      * Returns a negative X {@link #Vector3(float, float, float)}. (-1,0,0)
      */
-    public static Vector3 NEGATIVE_X = new Vector3(-1.0F, 0.0F, 0.0F);
+    public static final Vector3 NEGATIVE_X = new Vector3(-1.0F, 0.0F, 0.0F);
 
     /**
      * Returns a positive Y {@link #Vector3(float, float, float)}. (0,-1,0)
      */
-    public static Vector3 NEGATIVE_Y = new Vector3(0.0F, -1.0F, 0.0F);
+    public static final Vector3 NEGATIVE_Y = new Vector3(0.0F, -1.0F, 0.0F);
 
     /**
      * Returns a negative Z {@link #Vector3(float, float, float)}. (0,0,-1)
      */
-    public static Vector3 NEGATIVE_Z = new Vector3(0.0F, 0.0F, -1.0F);
+    public static final Vector3 NEGATIVE_Z = new Vector3(0.0F, 0.0F, -1.0F);
 
-    public static Vector3[] ALL = new Vector3[] {NEGATIVE_X, NEGATIVE_Y, NEGATIVE_Z, POSITIVE_X, POSITIVE_Y, POSITIVE_Z};
+    public static final Vector3[] ALL = new Vector3[] {NEGATIVE_X, NEGATIVE_Y, NEGATIVE_Z, POSITIVE_X, POSITIVE_Y, POSITIVE_Z};
 
     private float x, y, z;
 
@@ -175,9 +175,9 @@ public class Vector3 {
     @Override
     public int hashCode()
     {
-        int result = (this.x != +0.0f ? Float.floatToIntBits(this.x) : 0);
-        result = 31 * result + (this.y != +0.0f ? Float.floatToIntBits(this.y) : 0);
-        result = 31 * result + (this.z != +0.0f ? Float.floatToIntBits(this.z) : 0);
+        int result = (this.x != 0F ? Float.floatToIntBits(this.x) : 0);
+        result = 31 * result + (this.y != 0F ? Float.floatToIntBits(this.y) : 0);
+        result = 31 * result + (this.z != 0F ? Float.floatToIntBits(this.z) : 0);
         return result;
     }
 
@@ -302,7 +302,7 @@ public class Vector3 {
 
     /**
      * Returns the reflection of a vector off a surface that has the specified normal.
-     *
+     * <p>
      * Reflect only gives the direction of a reflection off a surface, it does not determine
      * whether the original vector was close enough to the surface to hit it.
      *
@@ -312,7 +312,6 @@ public class Vector3 {
      */
     public static Vector3 reflect(Vector3 vector, Vector3 normal)
     {
-        Vector3 result = ZERO;
         float dot = MathUtils.fma(vector.getX(), normal.getX(), MathUtils.fma(vector.getY(), normal.getY(), vector.getZ() * normal.getZ()));
 
         return new Vector3(

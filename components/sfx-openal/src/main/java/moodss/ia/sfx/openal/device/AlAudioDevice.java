@@ -11,13 +11,11 @@ import moodss.ia.sfx.api.types.ALCToken;
 import moodss.ia.sfx.api.types.EffectType;
 import moodss.ia.sfx.api.types.ErrorCondition;
 import moodss.ia.sfx.api.types.FilterType;
-import moodss.ia.sfx.openal.AlEnum;
 import moodss.ia.sfx.openal.AlTags;
 import moodss.ia.sfx.openal.EfxEnum;
 import moodss.ia.sfx.openal.effect.AlEfxAuxiliaryEffect;
 import moodss.ia.sfx.openal.effect.AlEfxEffect;
 import moodss.ia.sfx.openal.filter.AlEfxFilter;
-import org.lwjgl.openal.AL11;
 import org.lwjgl.openal.ALC10;
 import org.lwjgl.openal.EXTEfx;
 

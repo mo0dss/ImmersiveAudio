@@ -33,15 +33,9 @@ public class AlAudioDeviceContext implements AudioDeviceContext {
         var handle = filter.getHandle();
 
         switch(filter.type()) {
-            case LOWPASS -> {
-                EXTEfx.alFilterf(handle, EfxEnum.from(LowpassFilterType.GAIN), gain);
-            }
-            case HIGHPASS -> {
-                EXTEfx.alFilterf(handle, EfxEnum.from(HighpassFilterType.GAIN), gain);
-            }
-            case BANDPASS -> {
-                EXTEfx.alFilterf(handle, EfxEnum.from(BandpassFilterType.GAIN), gain);
-            }
+            case LOWPASS -> EXTEfx.alFilterf(handle, EfxEnum.from(LowpassFilterType.GAIN), gain);
+            case HIGHPASS -> EXTEfx.alFilterf(handle, EfxEnum.from(HighpassFilterType.GAIN), gain);
+            case BANDPASS -> EXTEfx.alFilterf(handle, EfxEnum.from(BandpassFilterType.GAIN), gain);
             case ALL -> {
                 EXTEfx.alFilterf(handle, EfxEnum.from(LowpassFilterType.GAIN), gain);
                 EXTEfx.alFilterf(handle, EfxEnum.from(HighpassFilterType.GAIN), gain);
@@ -59,12 +53,8 @@ public class AlAudioDeviceContext implements AudioDeviceContext {
         var handle = filter.getHandle();
 
         switch (filter.type()) {
-            case HIGHPASS -> {
-                EXTEfx.alFilterf(handle, EfxEnum.from(HighpassFilterType.GAIN_LF), gainLF);
-            }
-            case BANDPASS -> {
-                EXTEfx.alFilterf(handle, EfxEnum.from(BandpassFilterType.GAIN_LF), gainLF);
-            }
+            case HIGHPASS -> EXTEfx.alFilterf(handle, EfxEnum.from(HighpassFilterType.GAIN_LF), gainLF);
+            case BANDPASS -> EXTEfx.alFilterf(handle, EfxEnum.from(BandpassFilterType.GAIN_LF), gainLF);
             case ALL -> {
                 EXTEfx.alFilterf(handle, EfxEnum.from(HighpassFilterType.GAIN_LF), gainLF);
                 EXTEfx.alFilterf(handle, EfxEnum.from(BandpassFilterType.GAIN_LF), gainLF);

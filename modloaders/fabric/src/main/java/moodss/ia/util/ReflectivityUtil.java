@@ -2,8 +2,7 @@ package moodss.ia.util;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import moodss.ia.ImmersiveAudio;
-import moodss.ia.ray.BlockCollisionObelisk;
-import moodss.ia.ray.CollisionObelisk;
+import moodss.ia.ray.BlockRayHitResult;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.sound.BlockSoundGroup;
@@ -48,13 +47,9 @@ public class ReflectivityUtil {
        map.put(BlockSoundGroup.SNOW, "snow");
     });
     
-    public static float getReflectivity(CollisionObelisk obelisk) {
-        return getReflectivity0((BlockCollisionObelisk) obelisk);
-    }
-    
-    protected static float getReflectivity0(BlockCollisionObelisk obelisk) {
+    public static float getReflectivity0(BlockRayHitResult result) {
         MinecraftClient client = MinecraftClient.getInstance();
-        BlockState state = client.world.getBlockState(obelisk.getPos());
+        BlockState state = client.world.getBlockState(result.getPos());
 
         Map<String, Float> map = ImmersiveAudio.CONFIG.reflectivity.surfaceReflectivity;
         float def = map.get("all");

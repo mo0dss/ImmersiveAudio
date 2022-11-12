@@ -1,6 +1,5 @@
 package moodss.ia.ray;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import moodss.plummet.math.vec.Vector3;
 
 import java.util.*;
@@ -22,6 +21,7 @@ public class PathtracedDebug {
     public void clear() {
         synchronized (this.rays) {
             Arrays.fill(this.rays, null);
+            this.nextRayIdx = 0;
         }
     }
 
@@ -33,11 +33,6 @@ public class PathtracedDebug {
         }
     }
 
-    public Ray[] getRays() {
-        return this.rays;
-    }
-
-    public static record Ray(Vector3 start, Vector3 to, int color) {
-
-    }
+    public record Ray(Vector3 start, Vector3 to, int color)
+    {}
 }

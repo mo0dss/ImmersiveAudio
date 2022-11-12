@@ -2,9 +2,9 @@ package moodss.ia.util;
 
 import moodss.ia.mixin.VoxelShapeExt;
 import moodss.ia.mixins.VoxelShapeAccessor;
-import moodss.ia.ray.BlockCollisionObelisk;
-import moodss.ia.ray.CollisionObeliskHelper;
+import moodss.ia.ray.BlockRayHitResult;
 import moodss.ia.ray.Ray;
+import moodss.ia.ray.RayHitResultHelper;
 import moodss.plummet.math.vec.Vector3;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
@@ -21,16 +21,16 @@ import java.util.function.Supplier;
 public class RaycastUtils {
 
     @Nullable
-    public static BlockCollisionObelisk raycastBlock(World world, Vector3 start, Vector3 end, BlockPos pos, VoxelShape shape, BlockState state) {
-        BlockCollisionObelisk result = raycastVoxelShape(shape, start, end, pos);
-        if(result != null) {
-            BlockCollisionObelisk boundBackResult = raycastVoxelShape(state.getRaycastShape(world, pos), start, end, pos);
-            if(boundBackResult != null) {
-                float boundBackSqr = boundBackResult.getRay().dot(start);
-                float reflectiveSqr = result.getRay().dot(start);
+    public static BlockRayHitResult raycastBlock(World world, Ray start, Vector3 end, BlockPos pos, VoxelShape shape, BlockState state) {
+        BlockRayHitResult result = raycastVoxelShape(shape, start, end, pos);
+        if (result != null) {
+            BlockRayHitResult boundBackResult = raycastVoxelShape(state.getRaycastShape(world, pos), start, end, pos);
+            if (boundBackResult != null) {
+                float boundBackSqr = boundBackResult.ray().distanceToSquared(start);
+                float reflectiveSqr = result.ray().distanceToSquared(start);
 
-                if(boundBackSqr < reflectiveSqr) {
-                    return result.withRay(boundBackResult.getRay());
+                if (boundBackSqr < reflectiveSqr) {
+                    return result.withRay(boundBackResult.ray());
                 }
             }
         }
@@ -38,28 +38,24 @@ public class RaycastUtils {
         return result;
     }
 
-    public static BlockCollisionObelisk raycastVoxelShape(VoxelShape shape, Vector3 start, Vector3 end, BlockPos pos) {
+    public static BlockRayHitResult raycastVoxelShape(VoxelShape shape, Ray start, Vector3 end, BlockPos pos) {
         if (shape.isEmpty()) {
             return null;
         }
 
-        Vector3 mid = Vector3.subtract(end, start);
-        if(mid.lengthSquared() > 1.0E-7) {
-            Vector3 offset = Vector3.add(start, Vector3.modulate(mid, 0.001F));
+        Vector3 mid = start.furthestPoint(end);
+        if (mid.lengthSquared() > 1.0E-7) {
 
-            VoxelSet voxels = ((VoxelShapeAccessor) shape).voxels();
+            Vector3 offset = Vector3.add(Ray.getOrigin(start), Vector3.modulate(mid, 0.001F));
+            VoxelSet voxels = ((VoxelShapeAccessor)shape).voxels();
 
             return voxels
                     .inBoundsAndContains(
                             VoxelShapeExt.getCoordIdx(shape, Direction.Axis.X, offset.getX() - pos.getX()),
                             VoxelShapeExt.getCoordIdx(shape, Direction.Axis.Y, offset.getY() - pos.getY()),
                             VoxelShapeExt.getCoordIdx(shape, Direction.Axis.Z, offset.getZ() - pos.getZ())
-                    )
-                    ? BlockCollisionObelisk.create(
-                    new Ray(offset,
-                            DirectionUtil.get(DirectionUtil.getFacing(mid).getOpposite()),
-                            true),
-                    pos) : CollisionObeliskHelper.raycast(shape.getBoundingBoxes(), start, end, pos);
+                    ) ? BlockRayHitResult.create(new Ray(offset, DirectionUtil.get(DirectionUtil.getFacing(mid).getOpposite()), true), pos)
+                    : RayHitResultHelper.raycast(shape.getBoundingBoxes(), start, end, pos);
         }
 
         return null;
@@ -83,8 +79,7 @@ public class RaycastUtils {
         int originZ = MathHelper.floor(z2);
 
         BlockPos.Mutable mutable = new BlockPos.Mutable(originX, originY, originZ);
-
-        if(blockHitFactory.apply(mutable) == null) {
+        if (blockHitFactory.apply(mutable) == null) {
             return missFactory.get();
         }
 
@@ -100,27 +95,25 @@ public class RaycastUtils {
         float yAngle = yBit == 0 ? Float.MAX_VALUE : yBit / y;
         float zAngle = zBit == 0 ? Float.MAX_VALUE : zBit / z;
 
-        float directionX = xAngle * (xBit > 0 ? 1F - MathHelper.fractionalPart(x2) : MathHelper.fractionalPart(x2));
-        float directionY = yAngle * (yBit > 0 ? 1F - MathHelper.fractionalPart(y2) : MathHelper.fractionalPart(y2));
-        float directionZ = zAngle * (zBit > 0 ? 1F - MathHelper.fractionalPart(z2) : MathHelper.fractionalPart(z2));
+        float directionX = xAngle * (xBit > 0 ? 1.0F - MathHelper.fractionalPart(x2) : MathHelper.fractionalPart(x2));
+        float directionY = yAngle * (yBit > 0 ? 1.0F - MathHelper.fractionalPart(y2) : MathHelper.fractionalPart(y2));
+        float directionZ = zAngle * (zBit > 0 ? 1.0F - MathHelper.fractionalPart(z2) : MathHelper.fractionalPart(z2));
 
-        while(directionX <= 1F || directionY <= 1F || directionZ <= 1F) {
-            if(directionX < directionY) {
-                if(directionX < directionZ) {
+        while(directionX <= 1.0F || directionY <= 1.0F || directionZ <= 1.0F) {
+            if (directionX < directionY) {
+                if (directionX < directionZ) {
                     originX += xBit;
                     directionX += xAngle;
                 } else {
                     originZ += zBit;
                     directionX += zAngle;
                 }
+            } else if (directionY < directionZ) {
+                originY += yBit;
+                directionY += yAngle;
             } else {
-                if(directionY < directionZ) {
-                    originY += yBit;
-                    directionY += yAngle;
-                } else {
-                    originZ += zBit;
-                    directionZ += zAngle;
-                }
+                originZ += zBit;
+                directionZ += zAngle;
             }
 
             T result = blockHitFactory.apply(mutable.set(originX, originY, originZ));
