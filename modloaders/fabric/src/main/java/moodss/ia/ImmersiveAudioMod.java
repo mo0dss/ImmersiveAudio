@@ -12,7 +12,7 @@ public class ImmersiveAudioMod implements ModInitializer {
         ImmersiveAudio.init(FabricLoader.getInstance()
                 .getConfigDir());
 
-        AUDIO_PATHTRACER = new PathtracedAudio(ImmersiveAudio.CONFIG.raytracing);
+        AUDIO_PATHTRACER = new PathtracedAudio(ImmersiveAudio.CONFIG);
     }
 
     public static PathtracedAudio audioPathtracer() {

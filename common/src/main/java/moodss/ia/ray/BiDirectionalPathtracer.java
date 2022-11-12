@@ -44,6 +44,7 @@ public class BiDirectionalPathtracer extends DirectionalPathtracer {
                 this.strengthManager.addEntry(firstSharedAirspaceVector, rayLength);
             }
 
+            int missedSum = 0;
             for(int additionalRayBounce = 0; additionalRayBounce < this.additionalRayBounces; additionalRayBounce++) {
 
                 for(int bounceUnit = 0; bounceUnit < this.maxRayBounceCount; bounceUnit++) {
@@ -53,6 +54,7 @@ public class BiDirectionalPathtracer extends DirectionalPathtracer {
                     RayHitResult bounceResult = traceFunc.apply(bounceRay, bounceEndPosition);
                     if (bounceResult.type() == RayHitResult.Type.MISS) {
                         rayLength += prevTracedRay.distanceTo(listener);
+                        missedSum++;
 
                         this.onRayBounceMiss(prevTracedRay, bounceEndPosition);
                     } else {
@@ -69,7 +71,7 @@ public class BiDirectionalPathtracer extends DirectionalPathtracer {
                         }
                     }
 
-                    this.onRayBounceFinish(result, bounceUnit, rayLength);
+                    this.onRayBounceFinish(result, bounceUnit, missedSum, rayLength);
                     if (bounceResult.type() == RayHitResult.Type.MISS) {
                         break;
                     }
@@ -90,7 +92,7 @@ public class BiDirectionalPathtracer extends DirectionalPathtracer {
         //NO-OP
     }
 
-    protected void onRayBounceFinish(RayHitResult result, int unit, float overallRayLength) {
+    protected void onRayBounceFinish(RayHitResult result, int unit, int missedSum, float overallRayLength) {
         //NO-OP
     }
 }

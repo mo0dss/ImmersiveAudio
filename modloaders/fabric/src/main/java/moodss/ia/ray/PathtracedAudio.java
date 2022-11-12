@@ -7,6 +7,7 @@ import moodss.ia.user.ImmersiveAudioConfig;
 import moodss.ia.util.ReflectivityUtil;
 import moodss.plummet.math.MathUtils;
 import moodss.plummet.math.vec.Vector3;
+import net.minecraft.util.math.MathHelper;
 
 import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
@@ -22,23 +23,26 @@ public class PathtracedAudio extends DebugBiDirectionalPathtracer {
 
     protected float[] gains;
 
-    public PathtracedAudio(ImmersiveAudioConfig.Raytracing raytracing) {
-        super(raytracing);
+    public PathtracedAudio(ImmersiveAudioConfig config) {
+        super(config.raytracing);
 
-        this.bounceReflectivityRatio = new float[raytracing.maxRayBounceCount];
+        this.bounceReflectivityRatio = new float[config.raytracing.maxRayBounceCount];
+        this.gains = new float[config.resolution + 1];
     }
 
-    protected void clearBounceReflectivity() {
+    protected void clear() {
         Arrays.fill(this.bounceReflectivityRatio, 0.0F);
+        Arrays.fill(this.gains, 0F);
     }
 
     public CompletableFuture<Vector3> pathtrace(Vector3 origin, Vector3 listener,
                                                 BiFunction<Ray, Vector3, RayHitResult> traceFunc,
                                                 float maxDistance, Executor executor) {
-        this.clearBounceReflectivity();
-        float[] bounceReflectivityRatio = this.bounceReflectivityRatio;
+        this.clear();
+        float[] gains = this.gains;
 
-        this.gains = new float[ImmersiveAudio.AUXILIARY_EFFECT_MANAGER.getMaxAuxiliaries()];
+        int maxAuxiliary = ImmersiveAudio.AUXILIARY_EFFECT_MANAGER.getMaxAuxiliaries();
+        int maxRayBounceCount = ImmersiveAudio.CONFIG.raytracing.maxRayBounceCount;
         EAXReverbController reverbController = ImmersiveAudio.EAX_REVERB_CONTROLLER;
 
         return super.pathtrace(origin, listener, traceFunc, maxDistance, executor).thenApplyAsync(position -> {
@@ -46,18 +50,12 @@ public class PathtracedAudio extends DebugBiDirectionalPathtracer {
                 bounceReflectivityRatio[i] /= (float)this.maxRayCount;
             }
 
-            float sharedAirspace = (this.strengthManager.getCurrentEntryIdx() * 64.0F) * this.MAX_RAY_COUNT_NORM;
-
             ImmersiveAudio.DEVICE.run(context -> {
-                for(int idx = 0; idx < this.gains.length; ++idx) {
-                    float sharedAirspaceWeight = MathUtils.clamp(sharedAirspace / (idx * 20.0F - 10.0F), 0.0F, 1.0F);
-
-                    float sendGain = this.gains[idx];
-                    float sendCutoff = (float)(Math.exp(-3.0) * (double)(1.0F - sharedAirspaceWeight) + (double)sharedAirspaceWeight);
-
+                for(int idx = 0; idx < maxAuxiliary; idx++) {
+                    float sendGain = MathHelper.clamp(gains[MathUtils.average(this.gains, this.gains.length)] * this.gains.length / maxRayBounceCount, 0F, 1.0F - Float.MIN_NORMAL);
                     sendGain *= bounceReflectivityRatio[idx];
-                    sendGain = MathUtils.clamp(sendGain, 0.0F, 1.0F);
-                    sendGain = (float) (sendGain * Math.pow(sendCutoff, 0.1F));
+
+                    float sendCutoff = (float) Math.pow(sendGain, 0.1F);
 
                     Filter filter = reverbController.getFilter(idx);
                     context.setGain(filter, sendGain);
@@ -86,20 +84,31 @@ public class PathtracedAudio extends DebugBiDirectionalPathtracer {
     }
 
     @Override
-    protected void onRayBounceFinish(RayHitResult result, int unit, float overallRayLength) {
-        super.onRayBounceFinish(result, unit, overallRayLength);
-        this.onRayBounceFinish0((BlockRayHitResult)result, unit, overallRayLength);
+    protected void onRayBounceFinish(RayHitResult result, int unit, int missedSum, float overallRayLength) {
+        super.onRayBounceFinish(result, unit, missedSum, overallRayLength);
+        this.onRayBounceFinish0((BlockRayHitResult) result, unit, missedSum, overallRayLength);
     }
 
     //TODO: Remake gain
-    protected void onRayBounceFinish0(BlockRayHitResult result, int unit, float overallRayLength) {
-        float blockReflectivity = ReflectivityUtil.getReflectivity0(result);
-        float energyTowardsPlayer = 0.25F * (blockReflectivity * 0.75F + 0.25F);
-        float reflectionDelay = Math.max(overallRayLength, 0.0F) * 0.12F * blockReflectivity;
+    protected void onRayBounceFinish0(BlockRayHitResult result, int unit, int missedSum, float overallRayLength) {
+        float playerEnergy = MathHelper.clamp(
+                overallRayLength
+                        * (float) Math.pow(1F, overallRayLength)
+                        / (float) Math.pow(overallRayLength, 2.0F * missedSum),
+                0F, 1F);
 
-        for(int idx = 0; idx < this.gains.length; ++idx) {
-            float cross = 1.0F - MathUtils.clamp(Math.abs(reflectionDelay - 0.0F), 0.0F, 1.0F);
-            this.gains[idx] = cross * energyTowardsPlayer * 6.4F * this.MAX_RAY_COUNT_NORM;
-        }
+        float bounceEnergy = MathHelper.clamp(
+                overallRayLength
+                        * (float) Math.pow(1F, overallRayLength)
+                        / (float) Math.pow(overallRayLength, 2.0F * missedSum),
+                Float.MIN_VALUE, 1F);
+
+        float bounceTime = overallRayLength / 343.3F;
+        int resolution = ImmersiveAudio.CONFIG.resolution;
+
+        this.gains[MathUtils.clamp(
+                MathUtils.floor(MathUtils.logBase(Math.max((float) Math.pow(bounceEnergy, 4.142F / bounceTime), Float.MIN_VALUE), (float) Math.exp(-9.21F)) * resolution),
+                0,
+                resolution)] += playerEnergy;
     }
 }
