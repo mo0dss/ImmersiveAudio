@@ -4,7 +4,6 @@ import moodss.ia.ImmersiveAudio;
 import moodss.ia.openal.EAXReverbController;
 import moodss.ia.sfx.api.filter.Filter;
 import moodss.ia.user.ImmersiveAudioConfig;
-import moodss.ia.util.ReflectivityUtil;
 import moodss.plummet.math.MathUtils;
 import moodss.plummet.math.vec.Vector3;
 import net.minecraft.util.math.MathHelper;
@@ -16,22 +15,15 @@ import java.util.function.BiFunction;
 
 public class PathtracedAudio extends DebugBiDirectionalPathtracer {
 
-    /**
-     * Reflectivity of each block from every bounced ray
-     */
-    protected final float[] bounceReflectivityRatio;
-
     protected float[] gains;
 
     public PathtracedAudio(ImmersiveAudioConfig config) {
         super(config.raytracing);
 
-        this.bounceReflectivityRatio = new float[config.raytracing.maxRayBounceCount];
         this.gains = new float[config.resolution + 1];
     }
 
     protected void clear() {
-        Arrays.fill(this.bounceReflectivityRatio, 0.0F);
         Arrays.fill(this.gains, 0F);
     }
 
@@ -46,16 +38,16 @@ public class PathtracedAudio extends DebugBiDirectionalPathtracer {
         EAXReverbController reverbController = ImmersiveAudio.EAX_REVERB_CONTROLLER;
 
         return super.pathtrace(origin, listener, traceFunc, maxDistance, executor).thenApplyAsync(position -> {
-            for(int i = 0; i < bounceReflectivityRatio.length; ++i) {
-                bounceReflectivityRatio[i] /= (float)this.maxRayCount;
-            }
-
             ImmersiveAudio.DEVICE.run(context -> {
                 for(int idx = 0; idx < maxAuxiliary; idx++) {
-                    float sendGain = MathHelper.clamp(gains[MathUtils.average(this.gains, this.gains.length)] * this.gains.length / maxRayBounceCount, 0F, 1.0F - Float.MIN_NORMAL);
-                    sendGain *= bounceReflectivityRatio[idx];
+                    float sendGain = MathHelper.clamp(gains[MathUtils.average(this.gains, this.gains.length)] * this.gains.length / maxRayBounceCount, 0F, 1.0F);
 
                     float sendCutoff = (float) Math.pow(sendGain, 0.1F);
+
+                    if(sendGain < 0.0) {
+                        float norm = 1F / sendGain;
+                        sendGain *= norm;
+                    }
 
                     Filter filter = reverbController.getFilter(idx);
                     context.setGain(filter, sendGain);
@@ -70,12 +62,6 @@ public class PathtracedAudio extends DebugBiDirectionalPathtracer {
     @Override
     protected void onRayBounceHit(RayHitResult result, Ray ray, Vector3 endPosition, int unit) {
         super.onRayBounceHit(result, ray, endPosition, unit);
-        this.onRayBounceHit0((BlockRayHitResult)result, unit);
-    }
-
-    protected void onRayBounceHit0(BlockRayHitResult result, int unit) {
-        float blockReflectivity = ReflectivityUtil.getReflectivity0(result);
-        this.bounceReflectivityRatio[unit] += blockReflectivity;
     }
 
     @Override

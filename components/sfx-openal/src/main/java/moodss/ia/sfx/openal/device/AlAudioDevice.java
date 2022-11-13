@@ -18,8 +18,14 @@ import moodss.ia.sfx.openal.effect.AlEfxEffect;
 import moodss.ia.sfx.openal.filter.AlEfxFilter;
 import org.lwjgl.openal.ALC10;
 import org.lwjgl.openal.EXTEfx;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.logging.LogManager;
 
 public class AlAudioDevice implements AudioDevice {
+
+    private final Logger logger;
 
     protected final long devicePtr;
     private final AudioDeviceContext context;
@@ -27,6 +33,8 @@ public class AlAudioDevice implements AudioDevice {
     public AlAudioDevice(long devicePtr) {
         this.context = new AlAudioDeviceContext(this);
         this.devicePtr = devicePtr;
+
+        this.logger = LoggerFactory.getLogger("AlAudioDevice");
     }
 
     @Override
@@ -35,7 +43,9 @@ public class AlAudioDevice implements AudioDevice {
             consumer.apply(this.context);
         } catch(AudioException ex) {
             ErrorCondition condition = ex.getCondition();
-            throw new RuntimeException("%s: OpenAL error %s".formatted(ex.getMessage(), AlTags.from(condition)));
+            this.logger.error("{}: OpenAL error {}", ex.getMessage(), AlTags.from(condition), ex);
+
+        //   throw new RuntimeException("%s: OpenAL error %s".formatted(ex.getMessage(), AlTags.from(condition)));
         }
     }
 

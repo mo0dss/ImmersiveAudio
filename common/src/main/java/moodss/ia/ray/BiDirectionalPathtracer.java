@@ -18,9 +18,10 @@ public class BiDirectionalPathtracer extends DirectionalPathtracer {
         this.additionalRayBounces = additionalRayBounces;
     }
 
-    public CompletableFuture<Vector3> computePathtrace(
-            Vector3 origin, Vector3 listener, BiFunction<Ray, Vector3, RayHitResult> traceFunc, float maxDistance, Executor executor
-    ) {
+    public CompletableFuture<Vector3> computePathtrace(Vector3 origin, Vector3 listener,
+                                                       BiFunction<Ray, Vector3, RayHitResult> traceFunc,
+                                                       float maxDistance,
+                                                       Executor executor) {
         Vector3 directSharedAirspaceVector = getFurthestSharedAirspace(new Ray(origin), listener, traceFunc);
         if (!directSharedAirspaceVector.equals(Vector3.ZERO)) {
             this.strengthManager.setNominalEntry(directSharedAirspaceVector);
