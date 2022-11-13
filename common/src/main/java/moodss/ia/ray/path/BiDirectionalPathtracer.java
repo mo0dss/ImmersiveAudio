@@ -1,10 +1,12 @@
-package moodss.ia.ray;
+package moodss.ia.ray.path;
 
+import moodss.ia.ray.Ray;
+import moodss.ia.ray.RayHitResult;
+import moodss.ia.ray.trace.Raytracer;
 import moodss.plummet.math.vec.Vector3;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
-import java.util.function.BiFunction;
 
 public class BiDirectionalPathtracer extends DirectionalPathtracer {
     private final int maxRayBounceCount;
@@ -18,20 +20,21 @@ public class BiDirectionalPathtracer extends DirectionalPathtracer {
         this.additionalRayBounces = additionalRayBounces;
     }
 
-    public CompletableFuture<Vector3> computePathtrace(Vector3 origin, Vector3 listener,
-                                                       BiFunction<Ray, Vector3, RayHitResult> traceFunc,
+    public CompletableFuture<Vector3> computePathtrace(Vector3 origin,
+                                                       Vector3 listener,
+                                                       Raytracer tracer,
                                                        float maxDistance,
                                                        Executor executor) {
-        Vector3 directSharedAirspaceVector = getFurthestSharedAirspace(new Ray(origin), listener, traceFunc);
+        Vector3 directSharedAirspaceVector = getFurthestSharedAirspace(new Ray(origin), listener, tracer);
         if (!directSharedAirspaceVector.equals(Vector3.ZERO)) {
             this.strengthManager.setNominalEntry(directSharedAirspaceVector);
         }
 
-        return super.computePathtrace(origin, listener, traceFunc, maxDistance, executor);
+        return super.computePathtrace(origin, listener, tracer, maxDistance, executor);
     }
 
-    protected void onRay(Ray ray, Vector3 endPosition, Vector3 listener, float maxDistance, BiFunction<Ray, Vector3, RayHitResult> traceFunc) {
-        RayHitResult result = traceFunc.apply(ray, endPosition);
+    protected void onRay(Ray ray, Vector3 endPosition, Vector3 listener, float maxDistance, Raytracer tracer) {
+        RayHitResult result = tracer.create(ray, endPosition);
         if (result.type() == RayHitResult.Type.BLOCK) {
             float rayLength = ray.distanceTo(result.ray());
 
@@ -40,7 +43,7 @@ public class BiDirectionalPathtracer extends DirectionalPathtracer {
             Ray prevTracedRay = result.ray();
             Ray prevRay = ray;
 
-            Vector3 firstSharedAirspaceVector = getClosestSharedAirspace(prevTracedRay, listener, traceFunc);
+            Vector3 firstSharedAirspaceVector = getClosestSharedAirspace(prevTracedRay, listener, tracer);
             if (!firstSharedAirspaceVector.equals(Vector3.ZERO)) {
                 this.strengthManager.addEntry(firstSharedAirspaceVector, rayLength);
             }
@@ -52,7 +55,7 @@ public class BiDirectionalPathtracer extends DirectionalPathtracer {
                     Ray bounceRay = prevRay.reflect(prevTracedRay);
 
                     Vector3 bounceEndPosition = bounceRay.pointAt(maxDistance);
-                    RayHitResult bounceResult = traceFunc.apply(bounceRay, bounceEndPosition);
+                    RayHitResult bounceResult = tracer.create(bounceRay, bounceEndPosition, Ray.getOrigin(result.ray()));
                     if (bounceResult.type() == RayHitResult.Type.MISS) {
                         rayLength += prevTracedRay.distanceTo(listener);
                         missedSum++;
@@ -66,7 +69,7 @@ public class BiDirectionalPathtracer extends DirectionalPathtracer {
 
                         this.onRayBounceHit(bounceResult, prevTracedRay, Ray.getOrigin(bounceRay), bounceUnit);
 
-                        Vector3 sharedAirspaceVector = getClosestSharedAirspace(prevTracedRay, listener, traceFunc);
+                        Vector3 sharedAirspaceVector = getClosestSharedAirspace(prevTracedRay, listener, tracer);
                         if (sharedAirspaceVector != null) {
                             this.strengthManager.addEntry(sharedAirspaceVector, rayLength);
                         }

@@ -12,6 +12,7 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkSection;
+import org.jetbrains.annotations.Nullable;
 
 public class BlockTraceCollisionUtil {
 
@@ -22,11 +23,11 @@ public class BlockTraceCollisionUtil {
     // The chunk belonging to prevChunkPos.
     private static Chunk prevChunk;
 
-    public static RayHitResult createCollision(Ray ray, Vector3 to) {
-        return createCollision(MinecraftClient.getInstance().world, ray, to);
+    public static RayHitResult createCollision(Ray ray, Vector3 to, @Nullable Vector3 ignore) {
+        return createCollision(MinecraftClient.getInstance().world, ray, to, ignore);
     }
 
-    public static RayHitResult createCollision(World world, Ray ray, Vector3 to) {
+    public static RayHitResult createCollision(World world, Ray ray, Vector3 to, @Nullable Vector3 ignore) {
         RayHitResult missed = new RayHitResult(ray, RayHitResult.Type.MISS);
 
         if(world == null) {
@@ -34,6 +35,12 @@ public class BlockTraceCollisionUtil {
         }
 
         return RaycastUtils.raycast(Ray.getOrigin(ray), to, pos -> {
+            if(ignore != null) {
+                if(pos.getX() == ignore.getX() || pos.getY() == ignore.getZ() || pos.getZ() == ignore.getZ()) {
+                    return missed;
+                }
+            }
+
             int chunkX = ChunkSectionPos.getSectionCoord(pos.getX());
             int chunkZ = ChunkSectionPos.getSectionCoord(pos.getZ());
 

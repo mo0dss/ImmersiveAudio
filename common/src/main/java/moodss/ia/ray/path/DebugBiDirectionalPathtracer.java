@@ -1,11 +1,13 @@
-package moodss.ia.ray;
+package moodss.ia.ray.path;
 
+import moodss.ia.ray.Ray;
+import moodss.ia.ray.RayHitResult;
+import moodss.ia.ray.trace.Raytracer;
 import moodss.ia.user.ImmersiveAudioConfig;
 import moodss.plummet.math.vec.Vector3;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
-import java.util.function.BiFunction;
 
 public class DebugBiDirectionalPathtracer extends BiDirectionalPathtracer {
 
@@ -24,8 +26,9 @@ public class DebugBiDirectionalPathtracer extends BiDirectionalPathtracer {
         return this.debug;
     }
 
-    public CompletableFuture<Vector3> pathtrace(Vector3 origin, Vector3 listener,
-                                                BiFunction<Ray, Vector3, RayHitResult> traceFunc,
+    public CompletableFuture<Vector3> pathtrace(Vector3 origin,
+                                                Vector3 listener,
+                                                Raytracer traceFunc,
                                                 float maxDistance,
                                                 Executor executor) {
         this.debug.clear();

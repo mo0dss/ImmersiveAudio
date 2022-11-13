@@ -2,6 +2,8 @@ package moodss.ia.ray;
 
 import moodss.ia.ImmersiveAudio;
 import moodss.ia.openal.EAXReverbController;
+import moodss.ia.ray.path.DebugBiDirectionalPathtracer;
+import moodss.ia.ray.trace.Raytracer;
 import moodss.ia.sfx.api.filter.Filter;
 import moodss.ia.user.ImmersiveAudioConfig;
 import moodss.plummet.math.MathUtils;
@@ -11,7 +13,6 @@ import net.minecraft.util.math.MathHelper;
 import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
-import java.util.function.BiFunction;
 
 public class PathtracedAudio extends DebugBiDirectionalPathtracer {
 
@@ -27,9 +28,11 @@ public class PathtracedAudio extends DebugBiDirectionalPathtracer {
         Arrays.fill(this.gains, 0F);
     }
 
-    public CompletableFuture<Vector3> pathtrace(Vector3 origin, Vector3 listener,
-                                                BiFunction<Ray, Vector3, RayHitResult> traceFunc,
-                                                float maxDistance, Executor executor) {
+    public CompletableFuture<Vector3> pathtrace(Vector3 origin,
+                                                Vector3 listener,
+                                                Raytracer tracer,
+                                                float maxDistance,
+                                                Executor executor) {
         this.clear();
         float[] gains = this.gains;
 
@@ -37,7 +40,7 @@ public class PathtracedAudio extends DebugBiDirectionalPathtracer {
         int maxRayBounceCount = ImmersiveAudio.CONFIG.raytracing.maxRayBounceCount;
         EAXReverbController reverbController = ImmersiveAudio.EAX_REVERB_CONTROLLER;
 
-        return super.pathtrace(origin, listener, traceFunc, maxDistance, executor).thenApplyAsync(position -> {
+        return super.pathtrace(origin, listener, tracer, maxDistance, executor).thenApplyAsync(position -> {
             ImmersiveAudio.DEVICE.run(context -> {
                 for(int idx = 0; idx < maxAuxiliary; idx++) {
                     float sendGain = MathHelper.clamp(gains[MathUtils.average(this.gains, this.gains.length)] * this.gains.length / maxRayBounceCount, 0F, 1.0F);

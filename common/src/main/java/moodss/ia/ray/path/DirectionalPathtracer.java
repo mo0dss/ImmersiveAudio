@@ -1,13 +1,19 @@
-package moodss.ia.ray;
+package moodss.ia.ray.path;
 
+import moodss.ia.ray.Ray;
+import moodss.ia.ray.RayHitResult;
+import moodss.ia.ray.trace.Raytracer;
+import moodss.plummet.StreamUtil;
 import moodss.plummet.math.MathUtils;
 import moodss.plummet.math.vec.Vector3;
 import org.apache.commons.lang3.Validate;
 
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
 public class DirectionalPathtracer {
 
@@ -37,10 +43,11 @@ public class DirectionalPathtracer {
         MAX_RAY_COUNT_NORM = 1.0F / this.maxRayCount;
     }
 
-    public CompletableFuture<Vector3> computePathtrace(Vector3 origin, Vector3 listener,
-                                                           BiFunction<Ray, Vector3, RayHitResult> traceFunc,
-                                                           float maxDistance,
-                                                           Executor executor) {
+    public CompletableFuture<Vector3> computePathtrace(Vector3 origin,
+                                                       Vector3 listener,
+                                                       Raytracer traceFunc,
+                                                       float maxDistance,
+                                                       Executor executor) {
         this.strengthManager.clear();
         this.strengthManager.setMaxStrength(maxDistance);
 
@@ -77,12 +84,12 @@ public class DirectionalPathtracer {
         );
     }
 
-    protected void onRay(Ray ray, Vector3 endPosition, Vector3 listener, float maxDistance, BiFunction<Ray, Vector3, RayHitResult> traceFunc) {
+    protected void onRay(Ray ray, Vector3 endPosition, Vector3 listener, float maxDistance, Raytracer tracer) {
         //NO-OP
     }
 
-    protected static Vector3 getClosestSharedAirspace(Ray ray, Vector3 listener, BiFunction<Ray, Vector3, RayHitResult> traceFunc) {
-        RayHitResult result = traceFunc.apply(ray, listener);
+    protected static Vector3 getClosestSharedAirspace(Ray ray, Vector3 listener, Raytracer tracer) {
+        RayHitResult result = tracer.create(ray, listener);
         if(result.type() != RayHitResult.Type.MISS) {
             return ray.closestPoint(listener);
         }
@@ -90,8 +97,8 @@ public class DirectionalPathtracer {
         return Vector3.ZERO;
     }
 
-    protected static Vector3 getFurthestSharedAirspace(Ray ray, Vector3 listener, BiFunction<Ray, Vector3, RayHitResult> traceFunc) {
-        RayHitResult result = traceFunc.apply(ray, listener);
+    protected static Vector3 getFurthestSharedAirspace(Ray ray, Vector3 listener, Raytracer tracer) {
+        RayHitResult result = tracer.create(ray, listener);
         if(result.type() != RayHitResult.Type.MISS) {
             return ray.furthestPoint(listener);
         }
@@ -100,7 +107,7 @@ public class DirectionalPathtracer {
     }
 
     public static class StrengthManager {
-        private final BiDirectionalEntry[] entries;
+        private BiDirectionalEntry[] entries;
         private float maxStrength = 16.0F;
         private int nextEntryIdx;
         private BiDirectionalEntry nominalEntry;
@@ -129,7 +136,7 @@ public class DirectionalPathtracer {
 
         public void addEntry(Vector3 direction, float distance) {
             float strength = distance + direction.length();
-            if (!(strength <= 0.0F) && !(strength > this.maxStrength)) {
+            if (strength > this.maxStrength) {
                 this.entries[this.nextEntryIdx++] = new BiDirectionalEntry(direction, strength);
             }
         }
@@ -147,11 +154,8 @@ public class DirectionalPathtracer {
                 }
             }
 
-            //noinspection ForLoopReplaceableByForEach
-            for(int idx = 0; idx < this.entries.length; ++idx) {
-                BiDirectionalEntry entry = this.entries[idx];
-                output = entry.modifyForStrength(output);
-            }
+            //TODO: Remove streams
+            output = StreamUtil.apply(Arrays.stream(this.entries).filter(Objects::nonNull), output, (vector3, entry) -> entry.modifyForStrength(vector3));
 
             return Vector3.add(Vector3.modulate(Vector3.normalize(output), origin.distanceTo(listener)), listener);
         }

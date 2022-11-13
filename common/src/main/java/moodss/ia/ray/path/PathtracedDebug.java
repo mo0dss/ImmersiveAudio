@@ -1,4 +1,4 @@
-package moodss.ia.ray;
+package moodss.ia.ray.path;
 
 import moodss.plummet.math.vec.Vector3;
 
