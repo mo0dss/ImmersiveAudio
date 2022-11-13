@@ -5,6 +5,7 @@ import moodss.ia.mixins.VoxelShapeAccessor;
 import moodss.ia.ray.BlockRayHitResult;
 import moodss.ia.ray.Ray;
 import moodss.ia.ray.RayHitResultHelper;
+import moodss.plummet.math.MathUtils;
 import moodss.plummet.math.vec.Vector3;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
@@ -19,6 +20,8 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class RaycastUtils {
+
+    protected static final float EPSILON = 1.0E-7F;
 
     @Nullable
     public static BlockRayHitResult raycastBlock(World world, Ray start, Vector3 end, BlockPos pos, VoxelShape shape, BlockState state) {
@@ -44,7 +47,7 @@ public class RaycastUtils {
         }
 
         Vector3 mid = start.furthestPoint(end);
-        if (mid.lengthSquared() > 1.0E-7) {
+        if (mid.lengthSquared() > EPSILON) {
 
             Vector3 offset = Vector3.add(Ray.getOrigin(start), Vector3.modulate(mid, 0.001F));
             VoxelSet voxels = ((VoxelShapeAccessor)shape).voxels();
@@ -66,13 +69,13 @@ public class RaycastUtils {
             return missFactory.get();
         }
 
-        float x1 = MathHelper.lerp(-1.0E-7F, end.getX(), start.getX());
-        float y1 = MathHelper.lerp(-1.0E-7F, end.getY(), start.getY());
-        float z1 = MathHelper.lerp(-1.0E-7F, end.getZ(), start.getZ());
+        float x1 = MathUtils.lerp(-EPSILON, end.getX(), start.getX());
+        float y1 = MathUtils.lerp(-EPSILON, end.getY(), start.getY());
+        float z1 = MathUtils.lerp(-EPSILON, end.getZ(), start.getZ());
 
-        float x2 = MathHelper.lerp(-1.0E-7F, start.getX(), end.getX());
-        float y2 = MathHelper.lerp(-1.0E-7F, start.getY(), end.getY());
-        float z2 = MathHelper.lerp(-1.0E-7F, start.getZ(), end.getZ());
+        float x2 = MathUtils.lerp(-EPSILON, start.getX(), end.getX());
+        float y2 = MathUtils.lerp(-EPSILON, start.getY(), end.getY());
+        float z2 = MathUtils.lerp(-EPSILON, start.getZ(), end.getZ());
 
         int originX = MathHelper.floor(x2);
         int originY = MathHelper.floor(y2);

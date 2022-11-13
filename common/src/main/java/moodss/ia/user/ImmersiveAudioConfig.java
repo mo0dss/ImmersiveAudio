@@ -10,15 +10,12 @@ import java.lang.reflect.Modifier;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.HashMap;
-import java.util.Map;
 
 public class ImmersiveAudioConfig {
 
     public int resolution = 16;
 
     public final World world = new World();
-    public final Reflectivity reflectivity = new Reflectivity();
     public final Raytracing raytracing = new Raytracing();
 
     private Path configPath;
@@ -29,47 +26,6 @@ public class ImmersiveAudioConfig {
         config.sanitize();
 
         return config;
-    }
-
-    public static class Reflectivity {
-        public final Map<String, Float> surfaceReflectivity = new HashMap<>();
-
-        private void sanitize() {
-            Map<String, Float> surfaceReflectivity = this.surfaceReflectivity;
-
-            surfaceReflectivity.put("all", 0.5F);
-
-            surfaceReflectivity.put("stone", 1.5F);
-            surfaceReflectivity.put("netherite_block", 1.5F);
-            surfaceReflectivity.put("tuff", 1.5F);
-            surfaceReflectivity.put("amethyst", 1.5F);
-            surfaceReflectivity.put("basalt", 1.5F);
-            surfaceReflectivity.put("calcite", 1.5F);
-            surfaceReflectivity.put("bone_block", 1.5F);
-            surfaceReflectivity.put("copper", 1.25F);
-            surfaceReflectivity.put("deepslate", 1.5F);
-            surfaceReflectivity.put("deepslate_bricks", 1.5F);
-            surfaceReflectivity.put("deepslate_tiles", 1.5F);
-            surfaceReflectivity.put("polished_deepslate", 1.5F);
-            surfaceReflectivity.put("nether_bricks", 1.5F);
-            surfaceReflectivity.put("netherrack", 1.1F);
-            surfaceReflectivity.put("nether_gold_ore", 1.1F);
-            surfaceReflectivity.put("nether_ore", 1.1F);
-            surfaceReflectivity.put("stem", 0.4F);
-            surfaceReflectivity.put("wool", 0.1F);
-            surfaceReflectivity.put("honey_block", 0.1F);
-            surfaceReflectivity.put("moss", 0.1F);
-            surfaceReflectivity.put("soul_sand", 0.2F);
-            surfaceReflectivity.put("soul_soil", 0.2F);
-            surfaceReflectivity.put("coral_block", 0.2F);
-            surfaceReflectivity.put("metal", 1.25F);
-            surfaceReflectivity.put("wood", 0.4F);
-            surfaceReflectivity.put("gravel", 0.3F);
-            surfaceReflectivity.put("grass", 0.3F);
-            surfaceReflectivity.put("glass", 0.75F);
-            surfaceReflectivity.put("sand", 0.2F);
-            surfaceReflectivity.put("snow", 0.15F);
-        }
     }
 
     public static class Raytracing {
@@ -136,7 +92,7 @@ public class ImmersiveAudioConfig {
     }
 
     private void sanitize() {
-        this.reflectivity.sanitize();
+        //NO-OP
     }
 
     public void writeChanges() throws IOException {

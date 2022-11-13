@@ -43,6 +43,8 @@ public class SoundEngineMixin {
             if(!SOFTHRTF.nalcResetDeviceSOFT(this.devicePointer, pointer)) {
                 LOGGER.warn("Failed to reset audio device: {}", ALC10.alcGetString(this.devicePointer, ALC10.alcGetError(this.devicePointer)));
             }
+
+            MemoryUtil.nmemFree(pointer);
         }
     }
 

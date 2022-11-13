@@ -12,8 +12,6 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
-import java.util.function.BiFunction;
-import java.util.function.Function;
 
 public class DirectionalPathtracer {
 

@@ -21,8 +21,6 @@ import org.lwjgl.openal.EXTEfx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.logging.LogManager;
-
 public class AlAudioDevice implements AudioDevice {
 
     private final Logger logger;

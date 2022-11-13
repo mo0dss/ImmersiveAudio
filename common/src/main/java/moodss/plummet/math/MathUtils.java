@@ -1,7 +1,5 @@
 package moodss.plummet.math;
 
-import com.google.common.primitives.UnsignedInts;
-
 import java.util.function.Supplier;
 
 public class MathUtils {

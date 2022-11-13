@@ -7,7 +7,6 @@ import moodss.ia.sfx.api.effect.Effect;
 import moodss.ia.sfx.api.filter.Filter;
 import moodss.ia.sfx.api.source.Source;
 import moodss.ia.sfx.api.types.*;
-import moodss.ia.sfx.openal.ALException;
 import moodss.ia.sfx.openal.EfxEnum;
 import moodss.ia.sfx.openal.effect.AlEfxAuxiliaryEffect;
 import moodss.ia.sfx.openal.effect.AlEfxEffect;

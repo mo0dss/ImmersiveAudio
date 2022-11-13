@@ -26,7 +26,7 @@ public class SoundEngineMixin {
             )
     )
     private long onInit$alcCreateContext(long deviceHandle, IntBuffer attrList) {
-        //TODO: Context switching
+        //TODO: Potential context switching
         return ALC10.alcCreateContext(deviceHandle, new int[]{ EXTEfx.ALC_MAX_AUXILIARY_SENDS, ImmersiveAudio.CONFIG.resolution, 0, 0});
     }
 
@@ -42,13 +42,7 @@ public class SoundEngineMixin {
         //Ensure audioDevice is remade on every capability change.
         ImmersiveAudio.DEVICE = new AlAudioDevice(this.devicePointer);
 
-        //Remake auxiliary effects
-        ImmersiveAudio.createAuxiliaryEffects(true);
-
-        //Remake EAX controller
-        ImmersiveAudio.createEAXReverb(ImmersiveAudio.AUXILIARY_EFFECT_MANAGER);
-
-        //Remake echo controller
-        ImmersiveAudio.createEcho(ImmersiveAudio.AUXILIARY_EFFECT_MANAGER);
+        //Remake instance
+        ImmersiveAudio.reload(true);
     }
 }
