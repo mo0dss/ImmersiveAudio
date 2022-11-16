@@ -16,7 +16,7 @@ public class ImmersiveAudioConfig {
     /**
      * How many pixels should be capable of getting calculated for data
      */
-    public int audioResolution = 32;
+    public int audioResolution = 16;
 
     /**
      * How many sources should be capable of supporting mono data
