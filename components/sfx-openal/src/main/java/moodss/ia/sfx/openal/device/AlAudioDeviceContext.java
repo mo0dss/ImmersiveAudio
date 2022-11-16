@@ -14,7 +14,6 @@ import moodss.ia.sfx.openal.filter.AlEfxFilter;
 import moodss.ia.sfx.openal.source.AlSource;
 import org.lwjgl.openal.AL10;
 import org.lwjgl.openal.AL11;
-import org.lwjgl.openal.ALC10;
 import org.lwjgl.openal.EXTEfx;
 
 public class AlAudioDeviceContext implements AudioDeviceContext {
@@ -31,6 +30,9 @@ public class AlAudioDeviceContext implements AudioDeviceContext {
     }
 
     protected void setGain0(AlEfxFilter filter, float gain) {
+        if(!this.device.isEfxSupported()) {
+            return;
+        }
         var handle = filter.getHandle();
 
         switch(filter.type()) {
@@ -46,7 +48,7 @@ public class AlAudioDeviceContext implements AudioDeviceContext {
 
         int error = AL10.alGetError();
         if(error != AL10.AL_NO_ERROR) {
-            throw new AudioException("Failed applying efx filter gain", EfxEnum.from(error));
+            throw new AudioException("Failed applying efx filter gain", error);
         }
     }
 
@@ -56,6 +58,9 @@ public class AlAudioDeviceContext implements AudioDeviceContext {
     }
 
     protected void setGainLF0(AlEfxFilter filter, float gainLF) {
+        if(!this.device.isEfxSupported()) {
+            return;
+        }
         var handle = filter.getHandle();
 
         switch (filter.type()) {
@@ -65,12 +70,12 @@ public class AlAudioDeviceContext implements AudioDeviceContext {
                 EXTEfx.alFilterf(handle, EfxEnum.from(HighpassFilterType.GAIN_LF), gainLF);
                 EXTEfx.alFilterf(handle, EfxEnum.from(BandpassFilterType.GAIN_LF), gainLF);
             }
-            case LOWPASS -> throw new AudioException("Lowpass filters do not support 'gainLF'", ErrorCondition.INVALID_OPERATION);
+            case LOWPASS -> throw new AudioException("Lowpass filters do not support 'gainLF'", AL10.AL_INVALID_OPERATION);
         }
 
         int error = AL10.alGetError();
         if(error != AL10.AL_NO_ERROR) {
-            throw new AudioException("Failed applying efx filter gainLF", EfxEnum.from(error));
+            throw new AudioException("Failed applying efx filter gainLF", error);
         }
     }
 
@@ -80,10 +85,13 @@ public class AlAudioDeviceContext implements AudioDeviceContext {
     }
 
     protected void setGainHF0(AlEfxFilter filter, float gainHF) {
+        if(!this.device.isEfxSupported()) {
+            return;
+        }
         var handle = filter.getHandle();
 
         switch (filter.type()) {
-            case HIGHPASS -> throw new AudioException("Highpass filters do not support 'gainHF'", ErrorCondition.INVALID_OPERATION);
+            case HIGHPASS -> throw new AudioException("Highpass filters do not support 'gainHF'", AL10.AL_INVALID_OPERATION);
             case LOWPASS -> EXTEfx.alFilterf(handle, EfxEnum.from(LowpassFilterType.GAIN_HF), gainHF);
             case BANDPASS -> EXTEfx.alFilterf(handle, EfxEnum.from(BandpassFilterType.GAIN_HF), gainHF);
             case ALL -> {
@@ -94,7 +102,7 @@ public class AlAudioDeviceContext implements AudioDeviceContext {
 
         int error = AL10.alGetError();
         if(error != AL10.AL_NO_ERROR) {
-            throw new AudioException("Failed applying efx filter gainHF", EfxEnum.from(error));
+            throw new AudioException("Failed applying efx filter gainHF", error);
         }
     }
 
@@ -104,17 +112,21 @@ public class AlAudioDeviceContext implements AudioDeviceContext {
     }
 
     protected void setReverb0(AlEfxEffect effect, ReverbProperties properties, float value) {
+        if(!this.device.isEfxSupported()) {
+            return;
+        }
+
         var handle = effect.getHandle();
 
         if(effect.type() != EffectType.REVERB) {
-            throw new AudioException("%s effect filter type is not reverb".formatted(effect.type().name()), ErrorCondition.INVALID_OPERATION);
+            throw new AudioException("%s effect filter type is not reverb".formatted(effect.type().name()), AL10.AL_INVALID_OPERATION);
         }
 
         EXTEfx.alEffectf(handle, EfxEnum.from(properties), value);
 
         int error = AL10.alGetError();
         if(error != AL10.AL_NO_ERROR) {
-            throw new AudioException("Failed applying reverb effect property %s".formatted(properties.name()), EfxEnum.from(error));
+            throw new AudioException("Failed applying reverb effect property %s".formatted(properties.name()), error);
         }
     }
 
@@ -124,17 +136,21 @@ public class AlAudioDeviceContext implements AudioDeviceContext {
     }
 
     protected void setEAXReverb0(AlEfxEffect effect, EAXReverbProperties properties, float value) {
+        if(!this.device.isEfxSupported()) {
+            return;
+        }
+
         var handle = effect.getHandle();
 
         if(effect.type() != EffectType.EAXREVERB) {
-            throw new AudioException("%s effect filter type is not eax reverb".formatted(effect.type().name()), ErrorCondition.INVALID_OPERATION);
+            throw new AudioException("%s effect filter type is not eax reverb".formatted(effect.type().name()), AL10.AL_INVALID_OPERATION);
         }
 
         EXTEfx.alEffectf(handle, EfxEnum.from(properties), value);
 
         int error = AL10.alGetError();
         if(error != AL10.AL_NO_ERROR) {
-            throw new AudioException("Failed applying eax reverb effect property %s".formatted(properties.name()), EfxEnum.from(error));
+            throw new AudioException("Failed applying eax reverb effect property %s".formatted(properties.name()), error);
         }
     }
 
@@ -144,17 +160,21 @@ public class AlAudioDeviceContext implements AudioDeviceContext {
     }
 
     protected void setEcho0(AlEfxEffect effect, EchoProperties properties, float value) {
+        if(!this.device.isEfxSupported()) {
+            return;
+        }
+
         var handle = effect.getHandle();
 
         if(effect.type() != EffectType.ECHO) {
-            throw new AudioException("%s effect filter type is not echo".formatted(effect.type().name()), ErrorCondition.INVALID_OPERATION);
+            throw new AudioException("%s effect filter type is not echo".formatted(effect.type().name()), AL10.AL_INVALID_OPERATION);
         }
 
         EXTEfx.alEffectf(handle, EfxEnum.from(properties), value);
 
         int error = AL10.alGetError();
         if(error != AL10.AL_NO_ERROR) {
-            throw new AudioException("Failed applying echo effect property %s".formatted(properties.name()), EfxEnum.from(error));
+            throw new AudioException("Failed applying echo effect property %s".formatted(properties.name()), error);
         }
     }
 
@@ -170,7 +190,7 @@ public class AlAudioDeviceContext implements AudioDeviceContext {
 
         int error = AL10.alGetError();
         if(error != AL10.AL_NO_ERROR) {
-            throw new AudioException("Failed applying source position", EfxEnum.from(error));
+            throw new AudioException("Failed applying source position", error);
         }
     }
 
@@ -186,13 +206,13 @@ public class AlAudioDeviceContext implements AudioDeviceContext {
 
         int error = AL10.alGetError();
         if(error != AL10.AL_NO_ERROR) {
-            throw new AudioException("Failed applying source direction", EfxEnum.from(error));
+            throw new AudioException("Failed applying source direction", error);
         }
     }
 
     @Override
     public void bindAuxiliaryEffect(AuxiliaryEffect auxiliaryEffect, Effect effect) {
-        if(!ALC10.alcIsExtensionPresent(this.device.devicePtr, "ALC_EXT_EFX")) {
+        if(!this.device.isEfxSupported()) {
             return;
         }
 
@@ -207,7 +227,7 @@ public class AlAudioDeviceContext implements AudioDeviceContext {
 
         int error = AL10.alGetError();
         if(error != AL10.AL_NO_ERROR) {
-            throw new AudioException("Failed binding auxiliary effect", EfxEnum.from(error));
+            throw new AudioException("Failed binding auxiliary effect", error);
         }
     }
 
@@ -225,7 +245,7 @@ public class AlAudioDeviceContext implements AudioDeviceContext {
 
         int error = AL10.alGetError();
         if(error != AL10.AL_NO_ERROR) {
-            throw new AudioException("Failed binding auxiliary send filter to source", EfxEnum.from(error));
+            throw new AudioException("Failed binding auxiliary send filter to source", error);
         }
     }
 }

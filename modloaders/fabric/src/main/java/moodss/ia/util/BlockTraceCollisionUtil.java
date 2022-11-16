@@ -3,6 +3,7 @@ package moodss.ia.util;
 import moodss.ia.ray.BlockRayHitResult;
 import moodss.ia.ray.Ray;
 import moodss.ia.ray.RayHitResult;
+import moodss.plummet.math.MathUtils;
 import moodss.plummet.math.vec.Vector3;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
@@ -36,7 +37,7 @@ public class BlockTraceCollisionUtil {
 
         return RaycastUtils.raycast(Ray.getOrigin(ray), to, pos -> {
             if(ignore != null) {
-                if(pos.getX() == ignore.getX() || pos.getY() == ignore.getZ() || pos.getZ() == ignore.getZ()) {
+                if(pos.getX() == MathUtils.floor(ignore.getX()) || pos.getY() == MathUtils.floor(ignore.getY()) || pos.getZ() == MathUtils.floor(ignore.getZ())) {
                     return missed;
                 }
             }

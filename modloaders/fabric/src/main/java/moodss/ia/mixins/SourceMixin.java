@@ -2,6 +2,7 @@ package moodss.ia.mixins;
 
 import moodss.ia.ImmersiveAudio;
 import moodss.ia.ImmersiveAudioMod;
+import moodss.ia.client.ImmersiveAudioClientMod;
 import moodss.ia.ray.PathtracedAudio;
 import moodss.ia.sfx.openal.source.AlSource;
 import moodss.ia.util.BlockTraceCollisionUtil;
@@ -38,12 +39,12 @@ public class SourceMixin {
                         position,
                         cameraPosition,
                         BlockTraceCollisionUtil::createCollision,
-                        ImmersiveAudio.CONFIG.world.maxAudioSimulationDistance(MinecraftClient.getInstance().options.getSimulationDistance().getValue()),
+                        ImmersiveAudioMod.instance().config().world.maxAudioSimulationDistance(MinecraftClient.getInstance().options.getSimulationDistance().getValue()),
                         Util.getMainWorkerExecutor()
                 )
                 .join();
 
-        ImmersiveAudio.DEVICE.run(context -> {
+        ImmersiveAudioClientMod.DEVICE.run(context -> {
             if (!computedPosition.equals(Vector3.ZERO)) {
                 context.setPosition(source, computedPosition.getX(), computedPosition.getY(), computedPosition.getZ());
 
@@ -55,16 +56,18 @@ public class SourceMixin {
         });
     }
 
-
     @Inject(method = "setAttenuation", at = @At(value = "HEAD"))
     private void onSetAttenuation(float attenuation, CallbackInfo ci) {
         //I would like to formally apologize.
-        AL10.alSourcef(this.pointer, AL10.AL_REFERENCE_DISTANCE, ImmersiveAudio.CONFIG.world.minAudioSimulationDistance);
+        AL10.alSourcef(this.pointer, AL10.AL_REFERENCE_DISTANCE, ImmersiveAudioMod.instance().config().world.minAudioSimulationDistance);
     }
 
-    @Inject(method = "play", at = @At("RETURN"))
-    private void onPlay(CallbackInfo ci) {
-        AlSource source = AlSource.wrap(this.pointer);
-        ImmersiveAudio.DEVICE.run(context -> ImmersiveAudio.EAX_REVERB_CONTROLLER.applyToSource(context, ImmersiveAudio.AUXILIARY_EFFECT_MANAGER, source));
+    @Inject(method = "<init>", at = @At("RETURN"))
+    private void onInit(int pointer, CallbackInfo ci) {
+        AlSource source = AlSource.wrap(pointer);
+        ImmersiveAudioClientMod.DEVICE.run(context -> {
+            ImmersiveAudio commons = ImmersiveAudioMod.instance();
+            commons.eaxReverbController().applyToSource(context, commons.auxiliaryEffectManager(), source);
+        });
     }
 }

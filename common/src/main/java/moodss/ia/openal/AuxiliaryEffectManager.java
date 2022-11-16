@@ -9,18 +9,18 @@ public class AuxiliaryEffectManager {
     /**
      * Max auxiliary effects the attached device can play
      */
-    private final int maxAuxiliarySends;
+    private int maxAuxiliarySends;
 
     /**
      * Auxiliary effects
      */
-    private final AuxiliaryEffect[] effects;
+    private AuxiliaryEffect[] effects;
 
-    private final AudioDevice device;
+    public AuxiliaryEffectManager() {
+        //NO-OP; for now?
+    }
 
-    public AuxiliaryEffectManager(AudioDevice device, boolean sendAuto) {
-        this.device = device;
-
+    public void init(AudioDevice device, boolean sendAuto) {
         int maxAuxiliarySends = this.maxAuxiliarySends = device.getToken(ALCToken.MAX_AUXILIARY_SENDS);
         this.effects = new AuxiliaryEffect[maxAuxiliarySends];
 
@@ -37,9 +37,9 @@ public class AuxiliaryEffectManager {
         return this.effects[Math.floorMod(idx, this.effects.length)];
     }
 
-    public void destroy() {
+    public void destroy(AudioDevice device) {
         for(AuxiliaryEffect effect : this.effects) {
-            this.device.deleteAuxiliaryEffect(effect);
+            device.deleteAuxiliaryEffect(effect);
         }
     }
 }

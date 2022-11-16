@@ -178,7 +178,6 @@ public class DirectionalPathtracer {
                     return input;
                 }
 
-                //TODO: Shouldnt this be 3?
                 float dot = 1.0F / (strength * strength);
                 return Vector3.add(input, Vector3.modulate(Vector3.normalize(this.direction), dot));
             }

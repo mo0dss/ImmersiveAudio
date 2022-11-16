@@ -11,20 +11,21 @@ import moodss.ia.sfx.openal.source.AlSource;
 import moodss.plummet.math.MathUtils;
 
 public class EAXReverbController {
-    private final AudioDevice device;
-
     /**
      * EAXReverb effects
      */
-    private final Effect[] effects;
+    private Effect[] effects;
 
     /**
      * EAXReverb filters
      */
-    private final Filter[] filters;
+    private Filter[] filters;
 
-    public EAXReverbController(AudioDevice device, AuxiliaryEffectManager auxiliaryEffectManager) {
-        this.device = device;
+    public EAXReverbController() {
+        //NO-OP; for now?
+    }
+
+    public void init(AudioDevice device, AuxiliaryEffectManager auxiliaryEffectManager) {
         int maxAuxiliarySends = auxiliaryEffectManager.getMaxAuxiliaries();
         this.effects = new Effect[maxAuxiliarySends];
         this.filters = new Filter[maxAuxiliarySends];
@@ -44,6 +45,7 @@ public class EAXReverbController {
         });
     }
 
+
     public void applyToSource(AudioDeviceContext context, AuxiliaryEffectManager auxiliaryEffectManager, AlSource source) {
         for(int idx = 0; idx < this.effects.length; idx++) {
             context.bindSourceAuxiliarySendFilter(source, auxiliaryEffectManager.getAuxiliaryEffect(idx), this.filters[idx], idx);
@@ -59,7 +61,7 @@ public class EAXReverbController {
     }
 
     protected static void setEffectProperties(AudioDeviceContext context, Effect effect, float unit) {
-        context.setEAXReverb(effect, EAXReverbProperties.DECAY_TIME, Math.max(unit * 4.142F, 0.1F));
+        context.setEAXReverb(effect, EAXReverbProperties.DECAY_TIME, MathUtils.clamp(unit * 4.142F, 0.1F, 20F));
         context.setEAXReverb(effect, EAXReverbProperties.DENSITY, unit * 0.5F + 0.5F);
         context.setEAXReverb(effect, EAXReverbProperties.DIFFUSION, MathUtils.lerp(0.618F, 1.0F - unit, 1.0F));
         context.setEAXReverb(effect, EAXReverbProperties.DECAY_RATIO_HF, Math.max(0.95F - 0.3F * unit, 0.1F));
@@ -69,10 +71,10 @@ public class EAXReverbController {
         context.setEAXReverb(effect, EAXReverbProperties.LATE_DELAY, unit * 0.01F);
     }
 
-    public void destroy() {
+    public void destroy(AudioDevice device) {
         for(int idx = 0; idx < this.effects.length; idx++) {
-            this.device.deleteEffect(this.effects[idx]);
-            this.device.deleteFilter(this.filters[idx]);
+            device.deleteEffect(this.effects[idx]);
+            device.deleteFilter(this.filters[idx]);
         }
     }
 }

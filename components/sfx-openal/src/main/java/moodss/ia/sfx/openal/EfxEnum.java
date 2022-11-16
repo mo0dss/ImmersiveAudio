@@ -51,12 +51,6 @@ public class EfxEnum extends AlEnum {
         map.put(AuxiliaryEffectProperty.SEND_AUTO,                 EXTEfx.AL_EFFECTSLOT_AUXILIARY_SEND_AUTO);
     });
 
-    private static final int[] ALC_TOKENS = build(ALCToken.class, (map) -> {
-        map.put(ALCToken.MINOR_VERSION,           EXTEfx.ALC_EFX_MINOR_VERSION);
-        map.put(ALCToken.MAJOR_VERSION,           EXTEfx.ALC_EFX_MAJOR_VERSION);
-        map.put(ALCToken.MAX_AUXILIARY_SENDS,     EXTEfx.ALC_MAX_AUXILIARY_SENDS);
-    });
-
     private static final int[] REVERB_PROPERTIES = build(ReverbProperties.class, (map) -> {
         map.put(ReverbProperties.DENSITY,                EXTEfx.AL_REVERB_DENSITY);
         map.put(ReverbProperties.DIFFUSION,              EXTEfx.AL_REVERB_DIFFUSION);
@@ -117,10 +111,6 @@ public class EfxEnum extends AlEnum {
 
     public static int from(ReverbProperties properties) {
         return REVERB_PROPERTIES[properties.ordinal()];
-    }
-
-    public static int from(ALCToken token) {
-        return ALC_TOKENS[token.ordinal()];
     }
 
     public static int from(AuxiliaryEffectProperty property) {

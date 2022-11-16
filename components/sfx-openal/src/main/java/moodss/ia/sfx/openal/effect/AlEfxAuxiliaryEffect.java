@@ -9,8 +9,7 @@ import org.lwjgl.openal.EXTEfx;
 
 public class AlEfxAuxiliaryEffect extends AlObject implements AuxiliaryEffect {
 
-    public <T> AlEfxAuxiliaryEffect(boolean sendAuto) {
-        var handle = EXTEfx.alGenAuxiliaryEffectSlots();
+    public <T> AlEfxAuxiliaryEffect(int handle, boolean sendAuto) {
         this.setHandle(handle);
 
         if(sendAuto) {

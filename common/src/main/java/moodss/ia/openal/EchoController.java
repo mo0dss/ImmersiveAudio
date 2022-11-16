@@ -9,15 +9,16 @@ import moodss.ia.sfx.openal.source.AlSource;
 import moodss.plummet.math.MathUtils;
 
 public class EchoController {
-    private final AudioDevice device;
-
     /**
      * Echo effects
      */
-    private final Effect[] effects;
+    private Effect[] effects;
 
-    public EchoController(AudioDevice device, AuxiliaryEffectManager auxiliaryEffectManager) {
-        this.device = device;
+    public EchoController() {
+        //NO-OP; for now?
+    }
+
+    public void init(AudioDevice device, AuxiliaryEffectManager auxiliaryEffectManager) {
         int maxAuxiliaries = auxiliaryEffectManager.getMaxAuxiliaries();
         this.effects = new Effect[maxAuxiliaries];
 
@@ -51,9 +52,9 @@ public class EchoController {
         context.setEcho(effect, EchoProperties.SPREAD, (float)(Math.pow(unit, 0.5F) + 0.618F));
     }
 
-    public void destroy() {
+    public void destroy(AudioDevice device) {
         for(Effect effect : this.effects) {
-            this.device.deleteEffect(effect);
+            device.deleteEffect(effect);
         }
     }
 }

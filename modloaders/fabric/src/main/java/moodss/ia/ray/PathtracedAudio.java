@@ -1,6 +1,7 @@
 package moodss.ia.ray;
 
-import moodss.ia.ImmersiveAudio;
+import moodss.ia.ImmersiveAudioMod;
+import moodss.ia.client.ImmersiveAudioClientMod;
 import moodss.ia.openal.EAXReverbController;
 import moodss.ia.ray.path.DebugBiDirectionalPathtracer;
 import moodss.ia.ray.trace.Raytracer;
@@ -18,10 +19,13 @@ public class PathtracedAudio extends DebugBiDirectionalPathtracer {
 
     protected float[] gains;
 
+    private final ImmersiveAudioConfig config;
+
     public PathtracedAudio(ImmersiveAudioConfig config) {
         super(config.raytracing);
 
-        this.gains = new float[config.resolution + 1];
+        this.gains = new float[config.audioResolution + 1];
+        this.config = config;
     }
 
     protected void clear() {
@@ -36,12 +40,12 @@ public class PathtracedAudio extends DebugBiDirectionalPathtracer {
         this.clear();
         float[] gains = this.gains;
 
-        int maxAuxiliary = ImmersiveAudio.AUXILIARY_EFFECT_MANAGER.getMaxAuxiliaries();
-        int maxRayBounceCount = ImmersiveAudio.CONFIG.raytracing.maxRayBounceCount;
-        EAXReverbController reverbController = ImmersiveAudio.EAX_REVERB_CONTROLLER;
+        int maxAuxiliary = ImmersiveAudioMod.instance().auxiliaryEffectManager().getMaxAuxiliaries();
+        int maxRayBounceCount = this.config.raytracing.maxRayBounceCount;
+        EAXReverbController reverbController = ImmersiveAudioMod.instance().eaxReverbController();
 
         return super.pathtrace(origin, listener, tracer, maxDistance, executor).thenApplyAsync(position -> {
-            ImmersiveAudio.DEVICE.run(context -> {
+            ImmersiveAudioClientMod.DEVICE.run(context -> {
                 for(int idx = 0; idx < maxAuxiliary; idx++) {
                     float sendGain = MathHelper.clamp(gains[MathUtils.average(this.gains, this.gains.length)] * this.gains.length / maxRayBounceCount, 0F, 1.0F);
 
@@ -92,8 +96,8 @@ public class PathtracedAudio extends DebugBiDirectionalPathtracer {
                         / (float) Math.pow(overallRayLength, 2.0F * missedSum),
                 Float.MIN_VALUE, 1F);
 
-        float bounceTime = overallRayLength / 343.3F;
-        int resolution = ImmersiveAudio.CONFIG.resolution;
+        float bounceTime = overallRayLength / this.config.world.speedOfSound;
+        int resolution = this.config.audioResolution;
 
         this.gains[MathUtils.clamp(
                 MathUtils.floor(MathUtils.logBase(Math.max((float) Math.pow(bounceEnergy, 4.142F / bounceTime), Float.MIN_VALUE), (float) Math.exp(-9.21F)) * resolution),

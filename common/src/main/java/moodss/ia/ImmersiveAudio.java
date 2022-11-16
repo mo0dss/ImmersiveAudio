@@ -12,69 +12,86 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 public class ImmersiveAudio {
-    public static AudioDevice DEVICE;
-    public static ImmersiveAudioConfig CONFIG;
-    public static EAXReverbController EAX_REVERB_CONTROLLER;
-    public static AuxiliaryEffectManager AUXILIARY_EFFECT_MANAGER;
-    public static EchoController ECHO_CONTROLLER;
+    /**
+     * Main config
+     */
+    private final ImmersiveAudioConfig config;
 
-    protected static Logger LOGGER;
+    /**
+     * Common EAX reverb controller
+     */
+    private final EAXReverbController eaxReverbController;
 
-    public static void init(Path mainDirectory) {
+    /**
+     * Common auxiliary effect handler
+     */
+    private final AuxiliaryEffectManager auxiliaryEffectManager;
+
+    /**
+     * Simple echo property handler
+     */
+    private final EchoController echoController;
+
+    protected Logger LOGGER;
+
+    public ImmersiveAudio(Path mainDirectory) {
         LOGGER = LoggerFactory.getLogger("ImmersiveAudio");
 
         var configPath = mainDirectory
                 .resolve("immersive-audio-config.json");
 
-        loadConfig(configPath);
+        this.config = loadConfig(configPath);
+
+        //Initialise OpenAL components
+        this.auxiliaryEffectManager = new AuxiliaryEffectManager();
+        this.eaxReverbController = new EAXReverbController();
+        this.echoController = new EchoController();
     }
 
-    public static void reload(boolean sendAuto) {
-        createAuxiliaryEffects(sendAuto);
-        AuxiliaryEffectManager manager = ImmersiveAudio.AUXILIARY_EFFECT_MANAGER;
-        createEAXReverb(manager);
-        createEcho(manager);
-    }
-
-
-    private static void createAuxiliaryEffects(boolean sendAuto) {
-        if(AUXILIARY_EFFECT_MANAGER != null) {
-            AUXILIARY_EFFECT_MANAGER.destroy();
-        }
-
-        AUXILIARY_EFFECT_MANAGER = new AuxiliaryEffectManager(ImmersiveAudio.DEVICE, sendAuto);
-    }
-
-    private static void createEcho(AuxiliaryEffectManager auxiliaryEffectManager) {
-        if(ECHO_CONTROLLER != null) {
-            ECHO_CONTROLLER.destroy();
-        }
-
-        ECHO_CONTROLLER = new EchoController(ImmersiveAudio.DEVICE, auxiliaryEffectManager);
-    }
-
-    private static void createEAXReverb(AuxiliaryEffectManager auxiliaryEffectManager) {
-        if(EAX_REVERB_CONTROLLER != null) {
-            EAX_REVERB_CONTROLLER.destroy();
-        }
-
-        EAX_REVERB_CONTROLLER = new EAXReverbController(ImmersiveAudio.DEVICE, auxiliaryEffectManager);
-    }
-
-    private static void loadConfig(Path configPath) {
+    private static ImmersiveAudioConfig loadConfig(Path configPath) {
         try {
-
             System.out.println("Loading config");
-            CONFIG = ImmersiveAudioConfig.load(configPath);
+            return ImmersiveAudioConfig.load(configPath);
         } catch (Throwable t) {
             System.err.println("Failed to load configuration file for Immersive Audio " + t);
-            CONFIG = ImmersiveAudioConfig.defaults(configPath);
+            var config = ImmersiveAudioConfig.defaults(configPath);
 
             try {
-                CONFIG.writeChanges();
+                config.writeChanges();
             } catch (IOException ex) {
                 throw new RuntimeException("Failed to replace configuration file with known-good defaults", ex);
             }
+
+            return config;
         }
+    }
+
+    public void init(AudioDevice device, boolean sendAuto) {
+        //Initialize auxiliary effects
+        this.auxiliaryEffectManager.init(device, sendAuto);
+
+        //Initialize EAXReverb effects
+        this.eaxReverbController.init(device, this.auxiliaryEffectManager);
+
+        //Initialize Echo effects
+      //  this.echoController.init(device, this.auxiliaryEffectManager);
+    }
+
+    public ImmersiveAudioConfig config() {
+        return this.config;
+    }
+
+    public AuxiliaryEffectManager auxiliaryEffectManager() {
+        return this.auxiliaryEffectManager;
+    }
+
+    public EAXReverbController eaxReverbController() {
+        return this.eaxReverbController;
+    }
+
+    public void destroy(AudioDevice device) {
+        this.auxiliaryEffectManager.destroy(device);
+        this.eaxReverbController.destroy(device);
+       // this.echoController.destroy(device);
     }
 }

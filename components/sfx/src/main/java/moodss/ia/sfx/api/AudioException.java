@@ -1,27 +1,25 @@
 package moodss.ia.sfx.api;
 
-import moodss.ia.sfx.api.types.ErrorCondition;
-
 public class AudioException extends RuntimeException {
 
-    private final ErrorCondition condition;
+    private final int errorCode;
 
-    public AudioException(ErrorCondition condition) {
+    public AudioException(int errorCode) {
         super();
-        this.condition = condition;
+        this.errorCode = errorCode;
     }
 
-    public AudioException(String message, ErrorCondition condition) {
+    public AudioException(String message, int errorCode) {
         super(message);
-        this.condition = condition;
+        this.errorCode = errorCode;
     }
 
-    public AudioException(String message, Throwable cause, ErrorCondition condition) {
+    public AudioException(String message, Throwable cause, int errorCode) {
         super(message, cause);
-        this.condition = condition;
+        this.errorCode = errorCode;
     }
 
-    public ErrorCondition getCondition() {
-        return this.condition;
+    public int getErrorCode() {
+        return this.errorCode;
     }
 }

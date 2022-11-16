@@ -24,24 +24,26 @@ public class SoundEngineMixin {
      */
     @Overwrite
     private void setDirectionalAudio(boolean enabled) {
-        int specifiers = getInteger(this.devicePointer, SOFTHRTF.ALC_NUM_HRTF_SPECIFIERS_SOFT);
+        long devicePointer = this.devicePointer;
+
+        int specifiers = getInteger(devicePointer, SOFTHRTF.ALC_NUM_HRTF_SPECIFIERS_SOFT);
         if(specifiers == 0) {
             return;
         }
 
         try (MemoryStack stack = MemoryStack.stackPush()) {
-            long pointer = stack.nmalloc(10);
+            int size = Integer.BYTES * 10;
+            long pointer = stack.nmalloc(size);
+
+            //Ensure all values are zero
+            MemoryUtil.memSet(pointer, 0, size);
 
             MemoryUtil.memPutInt(pointer, SOFTHRTF.ALC_HRTF_SOFT);
-            MemoryUtil.memPutInt(pointer + 1, enabled ? 1 : 0);
-            MemoryUtil.memPutInt(pointer + 2, SOFTHRTF.ALC_HRTF_ID_SOFT);
+            MemoryUtil.memPutInt(pointer + 4, enabled ? ALC10.ALC_TRUE : ALC10.ALC_FALSE);
+            MemoryUtil.memPutInt(pointer + 8, SOFTHRTF.ALC_HRTF_ID_SOFT);
 
-            //TODO: Is this neccessary?
-            MemoryUtil.memPutInt(pointer + 3, 0);
-            MemoryUtil.memPutInt(pointer + 4, 0);
-
-            if(!SOFTHRTF.nalcResetDeviceSOFT(this.devicePointer, pointer)) {
-                LOGGER.warn("Failed to reset audio device: {}", ALC10.alcGetString(this.devicePointer, ALC10.alcGetError(this.devicePointer)));
+            if(!SOFTHRTF.nalcResetDeviceSOFT(devicePointer, pointer)) {
+                LOGGER.warn("Failed to reset audio device: {}", ALC10.alcGetString(devicePointer, ALC10.alcGetError(devicePointer)));
             }
 
             MemoryUtil.nmemFree(pointer);

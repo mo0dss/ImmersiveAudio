@@ -13,7 +13,20 @@ import java.nio.file.StandardCopyOption;
 
 public class ImmersiveAudioConfig {
 
-    public int resolution = 16;
+    /**
+     * How many pixels should be capable of getting calculated for data
+     */
+    public int audioResolution = 32;
+
+    /**
+     * How many sources should be capable of supporting mono data
+     */
+    public int monoSources = 32;
+
+    /**
+     * How many sources should be capable of supporting stereo data
+     */
+    public int stereoSources = 32;
 
     public final World world = new World();
     public final Raytracing raytracing = new Raytracing();
@@ -29,25 +42,68 @@ public class ImmersiveAudioConfig {
     }
 
     public static class Raytracing {
+
+        /**
+         * How many rays that will be used
+         */
         public int maxRayCount = 50;
+
+        /**
+         * How many rays that can bounced off a surface reflected from a ray
+         */
         public int maxRayBounceCount = 25;
 
+        /**
+         * How many additional times a ray can be counted
+         */
         public int additionalRayCount = 3;
+
+        /**
+         * How many additional times a ray can be bounced off
+         */
         public int additionalRayBounceCount = 3;
 
+        /**
+         * Maximum distance for every ray
+         */
         public float maxRayDistance = 256F;
 
         public boolean showDebug = false;
 
+        /**
+         * The max ray distance with a audio simulation distance being used as minimum
+         *
+         * @param audioSimulationDistance The audio simulation distance
+         * @return The overall max ray distance
+         */
         public float maxRayDistance(float audioSimulationDistance) {
             return Math.min(audioSimulationDistance, this.maxRayDistance);
         }
     }
 
     public static class World {
+
+        /**
+         * The max audio simulation distances
+         */
         public float maxAudioSimulationDistance = 1F;
+
+        /**
+         * The min audio simulation distances
+         */
         public float minAudioSimulationDistance = Float.MIN_VALUE;
 
+        /**
+         * How fast sounds will travel throughout the world
+         */
+        public float speedOfSound = 343.3F;
+
+        /**
+         * The max audio simulation distance with a simulation distance being used as minimum
+         *
+         * @param simulationDistance The simulation distance
+         * @return The max overall audio simulation distance
+         */
         public float maxAudioSimulationDistance(int simulationDistance) {
             float maxAudioSimulationDistance = this.maxAudioSimulationDistance;
             float simulationDistanceSqr = simulationDistance * simulationDistance;

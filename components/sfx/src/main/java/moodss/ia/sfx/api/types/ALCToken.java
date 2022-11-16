@@ -5,5 +5,11 @@ public enum ALCToken {
 
     MAJOR_VERSION,
 
-    MAX_AUXILIARY_SENDS
+    MAX_AUXILIARY_SENDS,
+
+    HRTF,
+
+    MONO,
+
+    STEREO
 }
