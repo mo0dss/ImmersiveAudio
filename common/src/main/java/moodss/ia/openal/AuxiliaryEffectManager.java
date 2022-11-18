@@ -1,7 +1,7 @@
 package moodss.ia.openal;
 
 import moodss.ia.sfx.api.device.AudioDevice;
-import moodss.ia.sfx.api.effect.AuxiliaryEffect;
+import moodss.ia.sfx.api.effects.AuxiliaryEffect;
 import moodss.ia.sfx.api.types.ALCToken;
 
 public class AuxiliaryEffectManager {

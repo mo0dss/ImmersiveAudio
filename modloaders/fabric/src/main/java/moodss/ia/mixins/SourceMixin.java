@@ -5,6 +5,7 @@ import moodss.ia.ImmersiveAudioMod;
 import moodss.ia.client.ImmersiveAudioClientMod;
 import moodss.ia.ray.PathtracedAudio;
 import moodss.ia.sfx.openal.source.AlSource;
+import moodss.ia.user.ImmersiveAudioConfig;
 import moodss.ia.util.BlockTraceCollisionUtil;
 import moodss.ia.util.CameraUtil;
 import moodss.plummet.math.vec.Vector3;
@@ -35,11 +36,13 @@ public class SourceMixin {
         PathtracedAudio pathtracer = ImmersiveAudioMod.audioPathtracer();
         AlSource source = AlSource.wrap(this.pointer);
 
+        ImmersiveAudioConfig config = ImmersiveAudioMod.instance().config();
+
         Vector3 computedPosition = pathtracer.pathtrace(
                         position,
                         cameraPosition,
                         BlockTraceCollisionUtil::createCollision,
-                        ImmersiveAudioMod.instance().config().world.maxAudioSimulationDistance(MinecraftClient.getInstance().options.getSimulationDistance().getValue()),
+                        config.raytracing.maxRayDistance(config.world.maxAudioSimulationDistance(MinecraftClient.getInstance().options.getSimulationDistance().getValue())),
                         Util.getMainWorkerExecutor()
                 )
                 .join();

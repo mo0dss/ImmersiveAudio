@@ -1,19 +1,65 @@
 plugins {
-    id 'java'
+    id 'net.minecraftforge.gradle' version '5.1.+'
 }
 
-group 'moodss.ia'
-version '1.0-SNAPSHOT'
+apply from: "${rootProject.projectDir}/gradle/forge.gradle"
+apply from: "${rootProject.projectDir}/gradle/java.gradle"
+
+archivesBaseName = project.archives_base_name + "-forge"
+version = getVersion()
+group = project.maven_group
+
+configurations {
+    compileImplementation
+
+    compileOnly.extendsFrom compileImplementation
+
+    implementation.extendsFrom compileImplementation
+}
+
+
+minecraft {
+    mappings channel: 'official', version: "${project.minecraft_version}"
+
+    runs {
+        client {
+            workingDirectory project.file('run')
+
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+
+            mods {
+                ia {
+                    source sourceSets.main
+                }
+            }
+        }
+        server {
+            workingDirectory project.file('run')
+
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+
+            mods {
+                ia {
+                    source sourceSets.main
+                }
+            }
+        }
+    }
+}
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
-}
+    minecraft "net.minecraftforge:forge:${project.minecraft_version}-${project.forge_version}"
 
-test {
-    useJUnitPlatform()
+    // Because we need the subprojects to be build as jars prior to their inclusion, we need to separate them to
+    // order them correctly.
+    implementation project(":components").subprojects
+    compileOnly project(":components").subprojects
+
+    compileImplementation project(":common")
 }

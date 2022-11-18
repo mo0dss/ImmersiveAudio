@@ -1,12 +1,12 @@
 package moodss.ia.sfx.api.device;
 
-import moodss.ia.sfx.api.effect.AuxiliaryEffect;
-import moodss.ia.sfx.api.effect.Effect;
-import moodss.ia.sfx.api.filter.Filter;
+import moodss.ia.sfx.api.effects.AuxiliaryEffect;
+import moodss.ia.sfx.api.effects.Effect;
+import moodss.ia.sfx.api.effects.filter.Filter;
 import moodss.ia.sfx.api.source.Source;
-import moodss.ia.sfx.api.types.EAXReverbProperties;
-import moodss.ia.sfx.api.types.EchoProperties;
-import moodss.ia.sfx.api.types.ReverbProperties;
+import moodss.ia.sfx.api.effects.types.EAXReverbProperties;
+import moodss.ia.sfx.api.effects.types.EchoProperties;
+import moodss.ia.sfx.api.effects.types.ReverbProperties;
 
 public interface AudioDeviceContext {
 
@@ -30,4 +30,6 @@ public interface AudioDeviceContext {
 
     //TODO: Types
     void bindSourceAuxiliarySendFilter(Source source, AuxiliaryEffect auxiliaryEffect, Filter filter, int unit);
+
+    void bindSourceSendFilter(Source source, Filter filter);
 }

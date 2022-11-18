@@ -2,11 +2,11 @@ package moodss.ia.sfx.openal.device;
 
 import moodss.ia.sfx.api.AudioException;
 import moodss.ia.sfx.api.device.AudioDeviceContext;
-import moodss.ia.sfx.api.effect.AuxiliaryEffect;
-import moodss.ia.sfx.api.effect.Effect;
-import moodss.ia.sfx.api.filter.Filter;
+import moodss.ia.sfx.api.effects.AuxiliaryEffect;
+import moodss.ia.sfx.api.effects.Effect;
+import moodss.ia.sfx.api.effects.filter.Filter;
+import moodss.ia.sfx.api.effects.types.*;
 import moodss.ia.sfx.api.source.Source;
-import moodss.ia.sfx.api.types.*;
 import moodss.ia.sfx.openal.EfxEnum;
 import moodss.ia.sfx.openal.effect.AlEfxAuxiliaryEffect;
 import moodss.ia.sfx.openal.effect.AlEfxEffect;
@@ -246,6 +246,22 @@ public class AlAudioDeviceContext implements AudioDeviceContext {
         int error = AL10.alGetError();
         if(error != AL10.AL_NO_ERROR) {
             throw new AudioException("Failed binding auxiliary send filter to source", error);
+        }
+    }
+
+    @Override
+    public void bindSourceSendFilter(Source source, Filter filter) {
+        this.bindSourceSendFilter0((AlSource) source, (AlEfxFilter) filter);
+    }
+
+    protected void bindSourceSendFilter0(AlSource source, AlEfxFilter filter) {
+        var handle = source.getHandle();
+
+        AL11.alSourcei(handle, EXTEfx.AL_DIRECT_FILTER, filter.getHandle());
+
+        int error = AL10.alGetError();
+        if(error != AL10.AL_NO_ERROR) {
+            throw new AudioException("Failed binding direct filter to source", error);
         }
     }
 }

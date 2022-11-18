@@ -1,7 +1,7 @@
 package moodss.ia.sfx.openal.effect;
 
-import moodss.ia.sfx.api.effect.Effect;
-import moodss.ia.sfx.api.types.EffectType;
+import moodss.ia.sfx.api.effects.Effect;
+import moodss.ia.sfx.api.effects.types.EffectType;
 import moodss.ia.sfx.openal.AlObject;
 import moodss.ia.sfx.openal.EfxEnum;
 import org.lwjgl.openal.EXTEfx;

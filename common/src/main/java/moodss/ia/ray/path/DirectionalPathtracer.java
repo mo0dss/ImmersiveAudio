@@ -13,7 +13,7 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
-public class DirectionalPathtracer {
+public abstract class DirectionalPathtracer {
 
     /**
      * Maximum amount of rays allowed
@@ -41,46 +41,27 @@ public class DirectionalPathtracer {
         MAX_RAY_COUNT_NORM = 1.0F / this.maxRayCount;
     }
 
-    public CompletableFuture<Vector3> computePathtrace(Vector3 origin,
-                                                       Vector3 listener,
+    public CompletableFuture<Vector3> computePathtrace(Vector3 origin, Vector3 listener,
                                                        Raytracer traceFunc,
-                                                       float maxDistance,
-                                                       Executor executor) {
+                                                       float maxDistance, Executor executor) {
         this.strengthManager.clear();
         this.strengthManager.setMaxStrength(maxDistance);
 
-        return CompletableFuture.supplyAsync(
-                () -> {
-                    float phi = MathUtils.PHI;
+        return CompletableFuture.supplyAsync(() -> {
+            for(int additionalRayUnit = 0; additionalRayUnit < this.additionalRays; additionalRayUnit++) {
+                for(int rayUnit = 0; rayUnit < this.maxRayCount; rayUnit++) {
+                    Ray ray = this.createRay(origin, rayUnit);
+                    Vector3 endPosition = ray.pointAt(maxDistance);
 
-                    for(int additionalRayUnit = 0; additionalRayUnit < this.additionalRays; additionalRayUnit++) {
-                        for(int rayUnit = 0; rayUnit < this.maxRayCount; rayUnit++) {
-                            float rayAngle = rayUnit * this.MAX_RAY_COUNT_NORM;
+                    this.onRay(ray, endPosition, listener, maxDistance, traceFunc);
+                }
+            }
 
-                            float longitude = phi * rayUnit;
-                            float latitude = (float) Math.asin(rayAngle * 2.0F - 1.0F);
-
-                            Ray ray = new Ray(
-                                    origin,
-                                    new Vector3(
-                                            (float)(Math.cos(latitude) * Math.cos(longitude)),
-                                            (float)(Math.cos(latitude) * Math.sin(longitude)),
-                                            (float)Math.sin(latitude)
-                                    ),
-                                    true
-                            );
-
-                            Vector3 endPosition = ray.pointAt(maxDistance);
-
-                            this.onRay(ray, endPosition, listener, maxDistance, traceFunc);
-                        }
-                    }
-
-                    return this.strengthManager.computePosition(origin, listener);
-                },
-                executor
-        );
+            return this.strengthManager.computePosition(origin, listener);
+            }, executor);
     }
+
+    protected abstract Ray createRay(Vector3 origin, int rayUnit);
 
     protected void onRay(Ray ray, Vector3 endPosition, Vector3 listener, float maxDistance, Raytracer tracer) {
         //NO-OP
@@ -110,14 +91,22 @@ public class DirectionalPathtracer {
         private int nextEntryIdx;
         private BiDirectionalEntry nominalEntry;
 
+        protected float occlusion, exclusion = 1F;
+
         public StrengthManager(int maxEntries) {
             Validate.isTrue(maxEntries != -1, "Max entry size must be one or higher.");
             this.entries = new BiDirectionalEntry[maxEntries];
         }
 
+        protected boolean canTestEntry() {
+            return this.occlusion > 0F && this.exclusion < 1F;
+        }
+
         public void clear() {
             Arrays.fill(this.entries, null);
             this.nextEntryIdx = 0;
+            this.occlusion = 0F;
+            this.exclusion = 1F;
         }
 
         public int getCurrentEntryIdx() {
@@ -132,15 +121,29 @@ public class DirectionalPathtracer {
             this.maxStrength = maxStrength;
         }
 
+        public void incrementOcclusion(float occlusion) {
+            this.occlusion += occlusion;
+
+            this.occlusion = MathUtils.clamp(this.occlusion, 0F, 1F);
+        }
+
+        public void decrementExclusion(float exclusion) {
+            this.exclusion -= exclusion;
+
+            this.exclusion = MathUtils.clamp(this.exclusion, 0F, 1F);
+        }
+
         public void addEntry(Vector3 direction, float distance) {
             float strength = distance + direction.length();
             if (strength > this.maxStrength) {
-                this.entries[this.nextEntryIdx++] = new BiDirectionalEntry(direction, strength);
+                if(this.nextEntryIdx > this.entries.length) {
+                    this.entries[this.nextEntryIdx++] = new BiDirectionalEntry(direction, strength);
+                }
             }
         }
 
         public Vector3 computePosition(Vector3 origin, Vector3 listener) {
-            if (isHomogenousArray(this.entries)) {
+            if (isHomogenousArray(this.entries) || !this.canTestEntry()) {
                 return origin;
             }
 

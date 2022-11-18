@@ -1,6 +1,6 @@
-package moodss.ia.sfx.api.filter;
+package moodss.ia.sfx.api.effects.filter;
 
-import moodss.ia.sfx.api.types.FilterType;
+import moodss.ia.sfx.api.effects.types.FilterType;
 
 public interface Filter {
     /**

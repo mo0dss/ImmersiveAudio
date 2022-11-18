@@ -2,9 +2,9 @@ package moodss.ia.openal;
 
 import moodss.ia.sfx.api.device.AudioDevice;
 import moodss.ia.sfx.api.device.AudioDeviceContext;
-import moodss.ia.sfx.api.effect.Effect;
-import moodss.ia.sfx.api.types.EchoProperties;
-import moodss.ia.sfx.api.types.EffectType;
+import moodss.ia.sfx.api.effects.Effect;
+import moodss.ia.sfx.api.effects.types.EchoProperties;
+import moodss.ia.sfx.api.effects.types.EffectType;
 import moodss.ia.sfx.openal.source.AlSource;
 import moodss.plummet.math.MathUtils;
 

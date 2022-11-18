@@ -3,6 +3,7 @@ package moodss.ia.ray.path;
 import moodss.ia.ray.Ray;
 import moodss.ia.ray.RayHitResult;
 import moodss.ia.ray.trace.Raytracer;
+import moodss.plummet.math.MathUtils;
 import moodss.plummet.math.vec.Vector3;
 
 import java.util.concurrent.CompletableFuture;
@@ -33,22 +34,42 @@ public class BiDirectionalPathtracer extends DirectionalPathtracer {
         return super.computePathtrace(origin, listener, tracer, maxDistance, executor);
     }
 
+    @Override
+    protected Ray createRay(Vector3 origin, int rayUnit) {
+        float rayAngle = rayUnit * this.MAX_RAY_COUNT_NORM;
+
+        float longitude = MathUtils.PHI * rayUnit;
+        float latitude = (float) Math.asin(rayAngle * 2.0F - 1.0F);
+
+        return new Ray(
+                origin,
+                new Vector3(
+                        (float)(Math.cos(latitude) * Math.cos(longitude)),
+                        (float)(Math.cos(latitude) * Math.sin(longitude)),
+                        (float)Math.sin(latitude)
+                ),
+                true
+        );
+    }
+
     protected void onRay(Ray ray, Vector3 endPosition, Vector3 listener, float maxDistance, Raytracer tracer) {
         RayHitResult result = tracer.create(ray, endPosition);
-        if (result.type() == RayHitResult.Type.BLOCK) {
-            float rayLength = ray.distanceTo(result.ray());
 
-            this.onRayBounceStart(result, ray);
+        this.onRayBounceStart(result, ray);
+        if (result.type() == RayHitResult.Type.BLOCK) {
+            float rayDistance = ray.distanceTo(result.ray());
+            float listenerDistance = ray.distanceTo(listener);
 
             Ray prevTracedRay = result.ray();
             Ray prevRay = ray;
 
             Vector3 firstSharedAirspaceVector = getClosestSharedAirspace(prevTracedRay, listener, tracer);
             if (!firstSharedAirspaceVector.equals(Vector3.ZERO)) {
-                this.strengthManager.addEntry(firstSharedAirspaceVector, rayLength);
+                this.strengthManager.addEntry(firstSharedAirspaceVector, rayDistance);
             }
 
             int missedSum = 0;
+            int bouncedSum = 0;
             for(int additionalRayBounce = 0; additionalRayBounce < this.additionalRayBounces; additionalRayBounce++) {
 
                 for(int bounceUnit = 0; bounceUnit < this.maxRayBounceCount; bounceUnit++) {
@@ -57,12 +78,13 @@ public class BiDirectionalPathtracer extends DirectionalPathtracer {
                     Vector3 bounceEndPosition = bounceRay.pointAt(maxDistance);
                     RayHitResult bounceResult = tracer.create(bounceRay, bounceEndPosition, Ray.getOrigin(result.ray()));
                     if (bounceResult.type() == RayHitResult.Type.MISS) {
-                        rayLength += prevTracedRay.distanceTo(listener);
+                        rayDistance += prevTracedRay.distanceTo(listener);
                         missedSum++;
 
-                        this.onRayBounceMiss(prevTracedRay, bounceEndPosition);
+                        this.onRayBounceMiss(bounceResult, prevTracedRay, bounceEndPosition);
                     } else {
-                        rayLength += prevTracedRay.distanceTo(bounceResult.ray());
+                        rayDistance += prevTracedRay.distanceTo(bounceResult.ray());
+                        bouncedSum++;
 
                         prevTracedRay = bounceResult.ray();
                         prevRay = bounceRay;
@@ -71,11 +93,11 @@ public class BiDirectionalPathtracer extends DirectionalPathtracer {
 
                         Vector3 sharedAirspaceVector = getClosestSharedAirspace(prevTracedRay, listener, tracer);
                         if (sharedAirspaceVector != null) {
-                            this.strengthManager.addEntry(sharedAirspaceVector, rayLength);
+                            this.strengthManager.addEntry(sharedAirspaceVector, rayDistance);
                         }
                     }
 
-                    this.onRayBounceFinish(result, bounceUnit, missedSum, rayLength);
+                    this.onRayBounceFinish(result, bounceUnit, missedSum, bouncedSum, rayDistance, listenerDistance);
                     if (bounceResult.type() == RayHitResult.Type.MISS) {
                         break;
                     }
@@ -88,7 +110,11 @@ public class BiDirectionalPathtracer extends DirectionalPathtracer {
         //NO-OP
     }
 
-    protected void onRayBounceMiss(Ray ray, Vector3 endPosition) {
+    protected void onRayBounceEnd(RayHitResult result, Ray ray) {
+        //NO-OP
+    }
+
+    protected void onRayBounceMiss(RayHitResult result, Ray ray, Vector3 endPosition) {
         //NO-OP
     }
 
@@ -96,7 +122,7 @@ public class BiDirectionalPathtracer extends DirectionalPathtracer {
         //NO-OP
     }
 
-    protected void onRayBounceFinish(RayHitResult result, int unit, int missedSum, float overallRayLength) {
+    protected void onRayBounceFinish(RayHitResult result, int unit, int missedSum, int bouncedSum, float rayDistance, float listenerDistance) {
         //NO-OP
     }
 }

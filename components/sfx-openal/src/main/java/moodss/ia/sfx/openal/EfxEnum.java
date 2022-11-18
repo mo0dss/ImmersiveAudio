@@ -1,6 +1,6 @@
 package moodss.ia.sfx.openal;
 
-import moodss.ia.sfx.api.types.*;
+import moodss.ia.sfx.api.effects.types.*;
 import org.lwjgl.openal.EXTEfx;
 
 public class EfxEnum extends AlEnum {

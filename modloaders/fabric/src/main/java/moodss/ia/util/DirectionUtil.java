@@ -6,7 +6,7 @@ import net.minecraft.util.math.Direction;
 public class DirectionUtil {
 
     public static Direction getFacing(Vector3 facing) {
-        Direction direction = Direction.NORTH;
+        var direction = Direction.NORTH;
 
         float prevOccurrence = Float.MIN_VALUE;
         for(Direction dir : Direction.values()) {

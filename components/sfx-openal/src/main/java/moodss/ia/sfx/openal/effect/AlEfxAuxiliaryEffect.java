@@ -1,7 +1,7 @@
 package moodss.ia.sfx.openal.effect;
 
-import moodss.ia.sfx.api.effect.AuxiliaryEffect;
-import moodss.ia.sfx.api.types.AuxiliaryEffectProperty;
+import moodss.ia.sfx.api.effects.AuxiliaryEffect;
+import moodss.ia.sfx.api.effects.types.AuxiliaryEffectProperty;
 import moodss.ia.sfx.openal.AlObject;
 import moodss.ia.sfx.openal.EfxEnum;
 import org.lwjgl.openal.AL10;

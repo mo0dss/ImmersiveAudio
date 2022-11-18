@@ -14,6 +14,10 @@ public class BlockRayHitResult extends RayHitResult {
         return new BlockRayHitResult(ray, pos, Type.BLOCK);
     }
 
+    public static BlockRayHitResult createMissed(Ray ray, BlockPos pos) {
+        return new BlockRayHitResult(ray, pos, Type.MISS);
+    }
+
     public BlockRayHitResult(Ray ray, BlockPos pos, Type type) {
         super(ray, type);
         this.pos = pos;

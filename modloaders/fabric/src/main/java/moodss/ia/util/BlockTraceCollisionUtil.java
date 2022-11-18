@@ -8,6 +8,7 @@ import moodss.plummet.math.vec.Vector3;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.fluid.FluidState;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.World;
@@ -29,16 +30,16 @@ public class BlockTraceCollisionUtil {
     }
 
     public static RayHitResult createCollision(World world, Ray ray, Vector3 to, @Nullable Vector3 ignore) {
-        RayHitResult missed = new RayHitResult(ray, RayHitResult.Type.MISS);
+        Vector3 origin = Ray.getOrigin(ray);
 
         if(world == null) {
-            return missed;
+            return BlockRayHitResult.createMissed(ray, new BlockPos(MathUtils.floor(origin.getX()), MathUtils.floor(origin.getY()), MathUtils.floor(origin.getZ())));
         }
 
-        return RaycastUtils.raycast(Ray.getOrigin(ray), to, pos -> {
+        return RaycastUtils.raycast(origin, to, pos -> {
             if(ignore != null) {
                 if(pos.getX() == MathUtils.floor(ignore.getX()) || pos.getY() == MathUtils.floor(ignore.getY()) || pos.getZ() == MathUtils.floor(ignore.getZ())) {
-                    return missed;
+                    return BlockRayHitResult.createMissed(ray, pos);
                 }
             }
 
@@ -85,7 +86,8 @@ public class BlockTraceCollisionUtil {
                     return blockDist <= fluidDist ? result : fluidResult;
                 }
             }
-            return missed;
-        }, () -> missed);
+
+            return BlockRayHitResult.createMissed(ray, pos);
+        }, (pos) -> BlockRayHitResult.createMissed(ray, pos));
     }
 }

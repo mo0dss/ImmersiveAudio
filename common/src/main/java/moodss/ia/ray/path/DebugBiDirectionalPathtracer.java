@@ -42,7 +42,7 @@ public class DebugBiDirectionalPathtracer extends BiDirectionalPathtracer {
     }
 
     @Override
-    protected void onRayBounceMiss(Ray ray, Vector3 endPosition) {
+    protected void onRayBounceMiss(RayHitResult bounceResult, Ray ray, Vector3 endPosition) {
         this.debug.addRay(Ray.getOrigin(ray), endPosition, 0xFFFF5555);
     }
 

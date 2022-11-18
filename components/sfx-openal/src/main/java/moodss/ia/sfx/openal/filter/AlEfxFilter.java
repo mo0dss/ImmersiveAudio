@@ -1,7 +1,7 @@
 package moodss.ia.sfx.openal.filter;
 
-import moodss.ia.sfx.api.filter.Filter;
-import moodss.ia.sfx.api.types.FilterType;
+import moodss.ia.sfx.api.effects.filter.Filter;
+import moodss.ia.sfx.api.effects.types.FilterType;
 import moodss.ia.sfx.openal.AlObject;
 import moodss.ia.sfx.openal.EfxEnum;
 import org.lwjgl.openal.EXTEfx;

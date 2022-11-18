@@ -1,4 +1,4 @@
-package moodss.ia.sfx.api.types;
+package moodss.ia.sfx.api.effects.types;
 
 public enum EffectType {
     ALL,

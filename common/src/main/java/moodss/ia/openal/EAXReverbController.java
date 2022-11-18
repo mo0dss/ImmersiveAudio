@@ -2,11 +2,11 @@ package moodss.ia.openal;
 
 import moodss.ia.sfx.api.device.AudioDevice;
 import moodss.ia.sfx.api.device.AudioDeviceContext;
-import moodss.ia.sfx.api.effect.Effect;
-import moodss.ia.sfx.api.filter.Filter;
-import moodss.ia.sfx.api.types.EAXReverbProperties;
-import moodss.ia.sfx.api.types.EffectType;
-import moodss.ia.sfx.api.types.FilterType;
+import moodss.ia.sfx.api.effects.Effect;
+import moodss.ia.sfx.api.effects.filter.Filter;
+import moodss.ia.sfx.api.effects.types.EAXReverbProperties;
+import moodss.ia.sfx.api.effects.types.EffectType;
+import moodss.ia.sfx.api.effects.types.FilterType;
 import moodss.ia.sfx.openal.source.AlSource;
 import moodss.plummet.math.MathUtils;
 
@@ -21,6 +21,11 @@ public class EAXReverbController {
      */
     private Filter[] filters;
 
+    /**
+     *
+     */
+    private Filter directFilter;
+
     public EAXReverbController() {
         //NO-OP; for now?
     }
@@ -34,6 +39,8 @@ public class EAXReverbController {
             this.effects[idx] = device.createEffect(EffectType.EAXREVERB);
             this.filters[idx] = device.createFilter(FilterType.LOWPASS);
         }
+
+        this.directFilter = device.createFilter(FilterType.LOWPASS);
 
         device.run(context -> {
             for(int idx = 0; idx < maxAuxiliarySends; ++idx) {
@@ -50,6 +57,8 @@ public class EAXReverbController {
         for(int idx = 0; idx < this.effects.length; idx++) {
             context.bindSourceAuxiliarySendFilter(source, auxiliaryEffectManager.getAuxiliaryEffect(idx), this.filters[idx], idx);
         }
+
+        context.bindSourceSendFilter(source, this.directFilter);
     }
 
     public Effect getEffect(int idx) {
@@ -58,6 +67,10 @@ public class EAXReverbController {
 
     public Filter getFilter(int idx) {
         return this.filters[Math.floorMod(idx, this.filters.length)];
+    }
+
+    public Filter getDirectFilter() {
+        return this.directFilter;
     }
 
     protected static void setEffectProperties(AudioDeviceContext context, Effect effect, float unit) {
@@ -76,5 +89,7 @@ public class EAXReverbController {
             device.deleteEffect(this.effects[idx]);
             device.deleteFilter(this.filters[idx]);
         }
+
+        device.deleteFilter(this.directFilter);
     }
 }

@@ -1,8 +1,8 @@
 package moodss.ia.sfx.api.device;
 
-import moodss.ia.sfx.api.effect.AuxiliaryEffect;
-import moodss.ia.sfx.api.effect.Effect;
-import moodss.ia.sfx.api.filter.Filter;
+import moodss.ia.sfx.api.effects.AuxiliaryEffect;
+import moodss.ia.sfx.api.effects.Effect;
+import moodss.ia.sfx.api.effects.filter.Filter;
 
 public interface ResourceDestructors {
 
