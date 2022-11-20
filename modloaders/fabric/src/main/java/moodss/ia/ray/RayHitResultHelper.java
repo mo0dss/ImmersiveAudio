@@ -42,23 +42,28 @@ public class RayHitResultHelper {
         return null;
     }
 
-    public static BlockRayHitResult raycast(Iterable<Box> boxes, Ray ray, Vector3 to, BlockPos pos) {
-        float[] traceDistanceResult = new float[]{1.0F};
+    public static BlockRayHitResult raycast(Iterable<Box> boxes, Ray ray, Vector3 to, BlockPos offset) {
+        float[] result = new float[]{1.0F};
 
         Vector3 direction = Vector3.ZERO;
-        Vector3 from = Ray.getOrigin(ray);
+        Vector3 origin = Ray.getOrigin(ray);
 
-        float x = to.getX() - from.getX();
-        float y = to.getY() - from.getY();
-        float z = to.getZ() - from.getZ();
+        float emitterX = to.getX() - origin.getX();
+        float emitterY = to.getY() - origin.getY();
+        float emitterZ = to.getZ() - origin.getZ();
 
         for(Box box : boxes) {
-            direction = traceCollisionSide(box.offset(pos), from, traceDistanceResult, direction, x, y, z);
+            direction = traceCollisionSide(box.offset(offset), origin, result, direction, emitterX, emitterY, emitterZ);
         }
 
         if (!direction.equals(Vector3.ZERO)) {
-            float distance = traceDistanceResult[0];
-            return BlockRayHitResult.create(new Ray(Vector3.add(from, distance * x, distance * y, distance * z), direction, true), pos);
+            float distance = result[0];
+            return BlockRayHitResult.create(
+                    new Ray(
+                            Vector3.add(origin, distance * emitterX, distance * emitterY, distance * emitterZ),
+                            direction,
+                            true),
+                    offset);
         }
 
         return null;

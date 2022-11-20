@@ -4,7 +4,6 @@ import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import it.unimi.dsi.fastutil.objects.Object2FloatArrayMap;
-import it.unimi.dsi.fastutil.objects.Object2FloatMap;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -12,6 +11,7 @@ import java.lang.reflect.Modifier;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.Map;
 import java.util.function.Consumer;
 
 public class ImmersiveAudioConfig {
@@ -40,9 +40,9 @@ public class ImmersiveAudioConfig {
     private Path configPath;
 
     public static ImmersiveAudioConfig defaults(Path path,
-                                                Consumer<Object2FloatMap<Object>> occlusionSanitizer,
-                                                Consumer<Object2FloatMap<Object>> exclusionSanitizer,
-                                                Consumer<Object2FloatMap<Object>> reflectivitySanitizer) {
+                                                Consumer<Map<SupportedSoundType, Float>> occlusionSanitizer,
+                                                Consumer<Map<SupportedSoundType, Float>> exclusionSanitizer,
+                                                Consumer<Map<SupportedSoundType, Float>> reflectivitySanitizer) {
         var config = new ImmersiveAudioConfig();
         config.configPath = path;
         config.sanitize(occlusionSanitizer, exclusionSanitizer, reflectivitySanitizer);
@@ -127,52 +127,43 @@ public class ImmersiveAudioConfig {
     }
 
     public static class Occlusion {
-        public Object2FloatMap<String> blockOcclusion = new Object2FloatArrayMap<>();
-        public Object2FloatMap<Object> soundTypeOcclusion = new Object2FloatArrayMap<>();
+        public Map<String, Float> blockOcclusion = new Object2FloatArrayMap<>();
+        public Map<SupportedSoundType, Float> soundTypeOcclusion = new Object2FloatArrayMap<>();
 
         /**
          * The default value for block sound occlusion
          */
         public float defaultOcclusion = 1F;
 
-        public void sanitize(Consumer<Object2FloatMap<Object>> sanitizer) {
-            this.blockOcclusion.defaultReturnValue(-1);
-            this.soundTypeOcclusion.defaultReturnValue(this.defaultOcclusion);
-
+        public void sanitize(Consumer<Map<SupportedSoundType, Float>> sanitizer) {
             sanitizer.accept(this.soundTypeOcclusion);
         }
     }
 
     public static class Exclusion {
-        public Object2FloatMap<String> blockExclusion = new Object2FloatArrayMap<>();
-        public Object2FloatMap<Object> soundTypeExclusion = new Object2FloatArrayMap<>();
+        public Map<String, Float> blockExclusion = new Object2FloatArrayMap<>();
+        public Map<SupportedSoundType, Float> soundTypeExclusion = new Object2FloatArrayMap<>();
 
         /**
          * The default value for block sound exclusion
          */
         public float defaultExclusion = 0F;
 
-        public void sanitize(Consumer<Object2FloatMap<Object>> sanitizer) {
-            this.blockExclusion.defaultReturnValue(-1);
-            this.soundTypeExclusion.defaultReturnValue(this.defaultExclusion);
-
+        public void sanitize(Consumer<Map<SupportedSoundType, Float>> sanitizer) {
             sanitizer.accept(this.soundTypeExclusion);
         }
     }
 
     public static class Reflectivity {
-        public Object2FloatMap<String> blockReflectivity = new Object2FloatArrayMap<>();
-        public Object2FloatMap<Object> soundTypeReflectivity = new Object2FloatArrayMap<>();
+        public Map<String, Float> blockReflectivity = new Object2FloatArrayMap<>();
+        public Map<SupportedSoundType, Float> soundTypeReflectivity = new Object2FloatArrayMap<>();
 
         /**
          * The default value for block sound reflectivity
          */
-        public float defaultSoundTypeReflectivity = 1F;
+        public float defaultReflectivity = 1F;
 
-        public void sanitize(Consumer<Object2FloatMap<Object>> sanitizer) {
-            this.blockReflectivity.defaultReturnValue(-1);
-            this.soundTypeReflectivity.defaultReturnValue(this.defaultSoundTypeReflectivity);
-
+        public void sanitize(Consumer<Map<SupportedSoundType, Float>> sanitizer) {
             sanitizer.accept(this.soundTypeReflectivity);
         }
     }
@@ -184,9 +175,9 @@ public class ImmersiveAudioConfig {
             .create();
 
     public static ImmersiveAudioConfig load(Path path,
-                                            Consumer<Object2FloatMap<Object>> occlusionSanitizer,
-                                            Consumer<Object2FloatMap<Object>> exclusionSanitizer,
-                                            Consumer<Object2FloatMap<Object>> reflectivitySanitizer) {
+                                            Consumer<Map<SupportedSoundType, Float>> occlusionSanitizer,
+                                            Consumer<Map<SupportedSoundType, Float>> exclusionSanitizer,
+                                            Consumer<Map<SupportedSoundType, Float>> reflectivitySanitizer) {
         ImmersiveAudioConfig config;
 
         if (Files.exists(path)) {
@@ -210,7 +201,9 @@ public class ImmersiveAudioConfig {
         return config;
     }
 
-    private void sanitize(Consumer<Object2FloatMap<Object>> occlusionSanitizer, Consumer<Object2FloatMap<Object>> exclusionSanitizer, Consumer<Object2FloatMap<Object>> reflectivitySanitizer) {
+    private void sanitize(Consumer<Map<SupportedSoundType, Float>> occlusionSanitizer,
+                          Consumer<Map<SupportedSoundType, Float>> exclusionSanitizer,
+                          Consumer<Map<SupportedSoundType, Float>> reflectivitySanitizer) {
         this.occlusion.sanitize(occlusionSanitizer);
         this.exclusion.sanitize(exclusionSanitizer);
         this.reflectivity.sanitize(reflectivitySanitizer);

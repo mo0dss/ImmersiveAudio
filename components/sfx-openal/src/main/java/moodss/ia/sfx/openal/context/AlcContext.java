@@ -18,8 +18,6 @@ public class AlcContext extends AlcObject implements Context {
         var pointer = createContextAttributes(description.bindings());
         var handle = ALC10.nalcCreateContext(AlAudioDevice.getDevicePointer(device), pointer);
         this.setHandle(handle);
-
-        MemoryUtil.nmemFree(pointer);
     }
 
     public AlcContext(long handle) {

@@ -4,7 +4,6 @@ import moodss.ia.ray.Ray;
 import moodss.ia.ray.RayHitResult;
 import moodss.ia.ray.trace.Raytracer;
 import moodss.plummet.StreamUtil;
-import moodss.plummet.math.MathUtils;
 import moodss.plummet.math.vec.Vector3;
 import org.apache.commons.lang3.Validate;
 
@@ -86,7 +85,7 @@ public abstract class DirectionalPathtracer {
     }
 
     public static class StrengthManager {
-        private BiDirectionalEntry[] entries;
+        private final BiDirectionalEntry[] entries;
         private float maxStrength = 16.0F;
         private int nextEntryIdx;
         private BiDirectionalEntry nominalEntry;
@@ -122,15 +121,15 @@ public abstract class DirectionalPathtracer {
         }
 
         public void incrementOcclusion(float occlusion) {
-            this.occlusion += occlusion;
-
-            this.occlusion = MathUtils.clamp(this.occlusion, 0F, 1F);
+            if(this.occlusion > 1) {
+                this.occlusion += occlusion;
+            }
         }
 
         public void decrementExclusion(float exclusion) {
-            this.exclusion -= exclusion;
-
-            this.exclusion = MathUtils.clamp(this.exclusion, 0F, 1F);
+            if(this.exclusion < 0) {
+                this.exclusion -= exclusion;
+            }
         }
 
         public void addEntry(Vector3 direction, float distance) {
@@ -165,7 +164,7 @@ public abstract class DirectionalPathtracer {
             BiDirectionalEntry val = arr[0];
 
             for(int i = 1; i < arr.length; ++i) {
-                if (arr[i] != val) {
+                if (arr[i] != val || arr[i] != null) {
                     return false;
                 }
             }

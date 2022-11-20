@@ -7,6 +7,7 @@ import moodss.ia.ray.path.DebugBiDirectionalPathtracer;
 import moodss.ia.ray.trace.Raytracer;
 import moodss.ia.sfx.api.effects.filter.Filter;
 import moodss.ia.user.ImmersiveAudioConfig;
+import moodss.ia.util.SupportedSoundTypeUtil;
 import moodss.plummet.math.MathUtils;
 import moodss.plummet.math.vec.Vector3;
 import net.minecraft.block.BlockState;
@@ -52,14 +53,15 @@ public class PathtracedAudio extends DebugBiDirectionalPathtracer {
         float[] directGains = this.directGain;
 
         int maxAuxiliary = ImmersiveAudioMod.instance().auxiliaryEffectManager().getMaxAuxiliaries();
-        int maxRayBounceCount = this.config.raytracing.maxRayBounceCount;
+        int maxRayBounceCount = this.maxRayBounceCount;
+        int maxRayCount = this.maxRayCount;
         EAXReverbController reverbController = ImmersiveAudioMod.instance().eaxReverbController();
 
         return super.pathtrace(origin, listener, tracer, maxDistance, executor).thenApplyAsync(position -> {
             ImmersiveAudioClientMod.DEVICE.run(context -> {
                 for(int idx = 0; idx < maxAuxiliary; idx++) {
                     float sendGain = MathHelper.clamp(gains[MathUtils.average(gains, gains.length)] * gains.length / maxRayBounceCount, 0F, 1.0F);
-                    float directGain = MathHelper.clamp(directGains[MathUtils.average(directGains, directGains.length)] * directGains.length / maxRayBounceCount, 0F, 1.0F);
+                    float directGain = MathHelper.clamp(directGains[MathUtils.average(directGains, directGains.length)] * directGains.length / maxRayCount, 0F, 1.0F);
 
                     float directCutoff = (float) Math.pow(directGain, 1F / 0.75F);
                     float sendCutoff = (float) Math.pow(sendGain, 1F / 0.75F);
@@ -86,6 +88,16 @@ public class PathtracedAudio extends DebugBiDirectionalPathtracer {
 
             return position;
         }, executor);
+    }
+
+    @Override
+    protected float sin(float value) {
+        return MathHelper.sin(value);
+    }
+
+    @Override
+    protected float cos(float value) {
+        return MathHelper.cos(value);
     }
 
     @Override
@@ -176,13 +188,15 @@ public class PathtracedAudio extends DebugBiDirectionalPathtracer {
         Validate.isTrue(world != null, "World is null");
         BlockState state = world.getBlockState(pos);
 
-        var blockReflectivity = config.reflectivity.blockReflectivity.getFloat(
-                Registry.BLOCK.getKey(state.getBlock())
+        var blockReflectivity = config.reflectivity.blockReflectivity.getOrDefault(
+                Registry.BLOCK.getKey(state.getBlock()),
+                -1F
         );
 
         if(blockReflectivity == -1) {
-            blockReflectivity = config.reflectivity.soundTypeReflectivity.getFloat(
-                    state.getSoundGroup()
+            blockReflectivity = config.reflectivity.soundTypeReflectivity.getOrDefault(
+                    SupportedSoundTypeUtil.from(state.getSoundGroup()),
+                    config.reflectivity.defaultReflectivity
             );
         }
 
@@ -195,13 +209,15 @@ public class PathtracedAudio extends DebugBiDirectionalPathtracer {
         Validate.isTrue(world != null, "World is null");
         BlockState state = world.getBlockState(pos);
 
-        var blockOcclusion = config.occlusion.blockOcclusion.getFloat(
-                Registry.BLOCK.getKey(state.getBlock())
+        var blockOcclusion = config.occlusion.blockOcclusion.getOrDefault(
+                Registry.BLOCK.getKey(state.getBlock()),
+                -1F
         );
 
         if(blockOcclusion == -1) {
-            blockOcclusion = config.occlusion.soundTypeOcclusion.getFloat(
-                    state.getSoundGroup()
+            blockOcclusion = config.occlusion.soundTypeOcclusion.getOrDefault(
+                    SupportedSoundTypeUtil.from(state.getSoundGroup()),
+                    config.occlusion.defaultOcclusion
             );
         }
 
@@ -214,13 +230,15 @@ public class PathtracedAudio extends DebugBiDirectionalPathtracer {
         Validate.isTrue(world != null, "World is null");
         BlockState state = world.getBlockState(pos);
 
-        var blockExclusion = config.exclusion.blockExclusion.getFloat(
-                Registry.BLOCK.getKey(state.getBlock())
+        var blockExclusion = config.exclusion.blockExclusion.getOrDefault(
+                Registry.BLOCK.getKey(state.getBlock()),
+                -1F
         );
 
         if(blockExclusion == -1) {
-            blockExclusion = config.exclusion.soundTypeExclusion.getFloat(
-                    state.getSoundGroup()
+            blockExclusion = config.exclusion.soundTypeExclusion.getOrDefault(
+                    SupportedSoundTypeUtil.from(state.getSoundGroup()),
+                    config.exclusion.defaultExclusion
             );
         }
 

@@ -1,16 +1,17 @@
 package moodss.ia;
 
-import it.unimi.dsi.fastutil.objects.Object2FloatMap;
 import moodss.ia.openal.AuxiliaryEffectManager;
 import moodss.ia.openal.EAXReverbController;
 import moodss.ia.openal.EchoController;
 import moodss.ia.sfx.api.device.AudioDevice;
 import moodss.ia.user.ImmersiveAudioConfig;
+import moodss.ia.user.SupportedSoundType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Map;
 import java.util.function.Consumer;
 
 public class ImmersiveAudio {
@@ -34,12 +35,12 @@ public class ImmersiveAudio {
      */
     private final EchoController echoController;
 
-    protected Logger LOGGER;
+    protected static Logger LOGGER;
 
     public ImmersiveAudio(Path mainDirectory,
-                          Consumer<Object2FloatMap<Object>> occlusionSanitizer,
-                          Consumer<Object2FloatMap<Object>> exclusionSanitizer,
-                          Consumer<Object2FloatMap<Object>> reflectivitySanitizer) {
+                          Consumer<Map<SupportedSoundType, Float>> occlusionSanitizer,
+                          Consumer<Map<SupportedSoundType, Float>> exclusionSanitizer,
+                          Consumer<Map<SupportedSoundType, Float>> reflectivitySanitizer) {
         LOGGER = LoggerFactory.getLogger("ImmersiveAudio");
 
         var configPath = mainDirectory
@@ -54,9 +55,9 @@ public class ImmersiveAudio {
     }
 
     private static ImmersiveAudioConfig loadConfig(Path configPath,
-                                                   Consumer<Object2FloatMap<Object>> occlusionSanitizer,
-                                                   Consumer<Object2FloatMap<Object>> exclusionSanitizer,
-                                                   Consumer<Object2FloatMap<Object>> reflectivitySanitizer) {
+                                                   Consumer<Map<SupportedSoundType, Float>> occlusionSanitizer,
+                                                   Consumer<Map<SupportedSoundType, Float>> exclusionSanitizer,
+                                                   Consumer<Map<SupportedSoundType, Float>> reflectivitySanitizer) {
         try {
             System.out.println("Loading config");
             return ImmersiveAudioConfig.load(configPath, occlusionSanitizer, exclusionSanitizer, reflectivitySanitizer);

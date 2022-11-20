@@ -2,6 +2,7 @@ package moodss.ia;
 
 import moodss.ia.ray.PathtracedAudio;
 import moodss.ia.util.BlockSoundGroupAttributes;
+import moodss.ia.util.SupportedSoundTypeUtil;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
 
@@ -13,6 +14,9 @@ public class ImmersiveAudioMod implements ModInitializer {
 
     @Override
     public void onInitialize() {
+        BlockSoundGroupAttributes.init();
+        SupportedSoundTypeUtil.init();
+
         INSTANCE = new ImmersiveAudio(
                 FabricLoader.getInstance().getConfigDir(),
                 BlockSoundGroupAttributes::applyOcclusion,

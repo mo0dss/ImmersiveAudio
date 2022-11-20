@@ -10,7 +10,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
 public class BiDirectionalPathtracer extends DirectionalPathtracer {
-    private final int maxRayBounceCount;
+    protected final int maxRayBounceCount;
 
     private final int additionalRayBounces;
 
@@ -41,15 +41,25 @@ public class BiDirectionalPathtracer extends DirectionalPathtracer {
         float longitude = MathUtils.PHI * rayUnit;
         float latitude = (float) Math.asin(rayAngle * 2.0F - 1.0F);
 
+        float latitudeCosine = cos(latitude);
+
         return new Ray(
                 origin,
                 new Vector3(
-                        (float)(Math.cos(latitude) * Math.cos(longitude)),
-                        (float)(Math.cos(latitude) * Math.sin(longitude)),
-                        (float)Math.sin(latitude)
+                        latitudeCosine * cos(longitude),
+                        latitudeCosine * sin(longitude),
+                        sin(latitude)
                 ),
                 true
         );
+    }
+
+    protected float sin(float value) {
+        return (float) Math.sin(value);
+    }
+
+    protected float cos(float value) {
+        return (float) Math.cos(value);
     }
 
     protected void onRay(Ray ray, Vector3 endPosition, Vector3 listener, float maxDistance, Raytracer tracer) {
@@ -104,6 +114,7 @@ public class BiDirectionalPathtracer extends DirectionalPathtracer {
                 }
             }
         }
+        this.onRayBounceEnd(result, ray);
     }
 
     protected void onRayBounceStart(RayHitResult result, Ray ray) {
