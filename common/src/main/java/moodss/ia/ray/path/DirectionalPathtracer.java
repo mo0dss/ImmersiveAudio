@@ -3,12 +3,10 @@ package moodss.ia.ray.path;
 import moodss.ia.ray.Ray;
 import moodss.ia.ray.RayHitResult;
 import moodss.ia.ray.trace.Raytracer;
-import moodss.plummet.StreamUtil;
 import moodss.plummet.math.vec.Vector3;
 import org.apache.commons.lang3.Validate;
 
 import java.util.Arrays;
-import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
@@ -154,8 +152,12 @@ public abstract class DirectionalPathtracer {
                 }
             }
 
-            //TODO: Remove streams
-            output = StreamUtil.apply(Arrays.stream(this.entries).filter(Objects::nonNull), output, (vector3, entry) -> entry.modifyForStrength(vector3));
+            for(int idx = 0; idx < this.entries.length; idx++) {
+                var val = this.entries[idx];
+                if(val != null) {
+                    output = val.modifyForStrength(output);
+                }
+            }
 
             return Vector3.add(Vector3.modulate(Vector3.normalize(output), origin.distanceTo(listener)), listener);
         }
