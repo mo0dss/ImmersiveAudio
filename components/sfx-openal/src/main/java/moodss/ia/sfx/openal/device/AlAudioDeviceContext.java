@@ -15,6 +15,8 @@ import moodss.ia.sfx.openal.source.AlSource;
 import org.lwjgl.openal.AL10;
 import org.lwjgl.openal.AL11;
 import org.lwjgl.openal.EXTEfx;
+import org.lwjgl.system.MemoryStack;
+import org.lwjgl.system.MemoryUtil;
 
 public class AlAudioDeviceContext implements AudioDeviceContext {
 
@@ -147,6 +149,38 @@ public class AlAudioDeviceContext implements AudioDeviceContext {
         }
 
         EXTEfx.alEffectf(handle, EfxEnum.from(properties), value);
+
+        int error = AL10.alGetError();
+        if(error != AL10.AL_NO_ERROR) {
+            throw new AudioException("Failed applying eax reverb effect property %s".formatted(properties.name()), error);
+        }
+    }
+
+    @Override
+    public void setEAXReverb(Effect effect, EAXReverbProperties properties, float x, float y, float z) {
+        this.setEAXReverb0((AlEfxEffect) effect, properties, x, y, z);
+    }
+
+    protected void setEAXReverb0(AlEfxEffect effect, EAXReverbProperties properties, float x, float y, float z) {
+        if(!this.device.isEfxSupported()) {
+            return;
+        }
+
+        var handle = effect.getHandle();
+
+        if(effect.type() != EffectType.EAXREVERB) {
+            throw new AudioException("%s effect filter type is not eax reverb".formatted(effect.type().name()), AL10.AL_INVALID_OPERATION);
+        }
+
+        try(MemoryStack stack = MemoryStack.stackPush()) {
+            long propertiesPtr = stack.nmalloc(Float.BYTES * 3);
+            MemoryUtil.memPutFloat(propertiesPtr + (Float.BYTES * 0), x);
+            MemoryUtil.memPutFloat(propertiesPtr + (Float.BYTES * 1), y);
+            MemoryUtil.memPutFloat(propertiesPtr + (Float.BYTES * 2), z);
+
+            EXTEfx.nalEffectfv(handle, EfxEnum.from(properties), propertiesPtr);
+            MemoryUtil.nmemFree(propertiesPtr);
+        }
 
         int error = AL10.alGetError();
         if(error != AL10.AL_NO_ERROR) {

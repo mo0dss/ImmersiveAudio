@@ -1,5 +1,7 @@
 package moodss.ia.user;
 
+import com.google.gson.*;
+
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -7,6 +9,14 @@ public class SupportedSoundType {
 
     //TODO: Required?
     protected static final AtomicInteger nextId = new AtomicInteger(0);
+
+    public static SupportedSoundType fromJson(JsonElement json) {
+        return new SupportedSoundType(json.getAsString());
+    }
+
+    public static JsonDeserializer<SupportedSoundType> jsonDeserializer() {
+        return (json, type, ctx) -> fromJson(json);
+    }
 
     private final int id;
     private final String name;

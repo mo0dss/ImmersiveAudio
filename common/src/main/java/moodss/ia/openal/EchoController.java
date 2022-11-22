@@ -49,7 +49,7 @@ public class EchoController {
         context.setEcho(effect, EchoProperties.DELAY_LR, Math.max(0.95F - 0.01F * unit, 0.1F));
         context.setEcho(effect, EchoProperties.DAMPING, MathUtils.lerp(0.618F, 1.0F - unit, 1.0F));
         context.setEcho(effect, EchoProperties.FEEDBACK, unit * 0.5F + 0.5F);
-        context.setEcho(effect, EchoProperties.SPREAD, (float)(Math.pow(unit, 0.5F) + 0.618F));
+        context.setEcho(effect, EchoProperties.SPREAD, MathUtils.pow(unit, 0.5F) + 0.618F);
     }
 
     public void destroy(AudioDevice device) {

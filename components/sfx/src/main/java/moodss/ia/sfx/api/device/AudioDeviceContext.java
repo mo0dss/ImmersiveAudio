@@ -20,6 +20,8 @@ public interface AudioDeviceContext {
 
     void setEAXReverb(Effect effect, EAXReverbProperties properties, float value);
 
+    void setEAXReverb(Effect effect, EAXReverbProperties properties, float x, float y, float z);
+
     void setEcho(Effect effect, EchoProperties properties, float value);
 
     void setPosition(Source source, float x, float y, float z);

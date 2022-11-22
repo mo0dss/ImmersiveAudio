@@ -1,5 +1,7 @@
 package moodss.plummet.math;
 
+import org.apache.commons.math3.util.FastMath;
+
 import java.util.function.Supplier;
 
 public class MathUtils {
@@ -74,7 +76,7 @@ public class MathUtils {
     }
 
     public static float logBase(float x, float b) {
-        return (float) (Math.log(x) / Math.log(b));
+        return (float) (FastMath.log(x) / FastMath.log(b));
     }
 
     public static int floor(float value) {
@@ -85,5 +87,29 @@ public class MathUtils {
         }
 
         return flatValue;
+    }
+
+    public static float pow(float value, float exponent) {
+        return (float) FastMath.pow(value, exponent);
+    }
+
+    public static double pow(double value, double exponent) {
+        return FastMath.pow(value, exponent);
+    }
+
+    public static int pow(int value, int exponent) {
+        return (int) FastMath.pow(value, exponent);
+    }
+
+    public static float exp(float value) {
+        return (float) FastMath.exp(value);
+    }
+
+    public static double exp(double value) {
+        return FastMath.exp(value);
+    }
+
+    public static int exp(int value) {
+        return (int) FastMath.exp(value);
     }
 }

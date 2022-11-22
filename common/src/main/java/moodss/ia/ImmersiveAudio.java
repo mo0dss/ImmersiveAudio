@@ -5,14 +5,11 @@ import moodss.ia.openal.EAXReverbController;
 import moodss.ia.openal.EchoController;
 import moodss.ia.sfx.api.device.AudioDevice;
 import moodss.ia.user.ImmersiveAudioConfig;
-import moodss.ia.user.SupportedSoundType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Map;
-import java.util.function.Consumer;
 
 public class ImmersiveAudio {
     /**
@@ -37,16 +34,13 @@ public class ImmersiveAudio {
 
     protected static Logger LOGGER;
 
-    public ImmersiveAudio(Path mainDirectory,
-                          Consumer<Map<SupportedSoundType, Float>> occlusionSanitizer,
-                          Consumer<Map<SupportedSoundType, Float>> exclusionSanitizer,
-                          Consumer<Map<SupportedSoundType, Float>> reflectivitySanitizer) {
+    public ImmersiveAudio(Path mainDirectory, ImmersiveAudioConfig.Sanitizer sanitizer) {
         LOGGER = LoggerFactory.getLogger("ImmersiveAudio");
 
         var configPath = mainDirectory
                 .resolve("immersive-audio-config.json");
 
-        this.config = loadConfig(configPath, occlusionSanitizer, exclusionSanitizer, reflectivitySanitizer);
+        this.config = loadConfig(configPath, sanitizer);
 
         //Initialise OpenAL components
         this.auxiliaryEffectManager = new AuxiliaryEffectManager();
@@ -54,16 +48,13 @@ public class ImmersiveAudio {
         this.echoController = new EchoController();
     }
 
-    private static ImmersiveAudioConfig loadConfig(Path configPath,
-                                                   Consumer<Map<SupportedSoundType, Float>> occlusionSanitizer,
-                                                   Consumer<Map<SupportedSoundType, Float>> exclusionSanitizer,
-                                                   Consumer<Map<SupportedSoundType, Float>> reflectivitySanitizer) {
+    private static ImmersiveAudioConfig loadConfig(Path configPath, ImmersiveAudioConfig.Sanitizer sanitizer) {
         try {
-            System.out.println("Loading config");
-            return ImmersiveAudioConfig.load(configPath, occlusionSanitizer, exclusionSanitizer, reflectivitySanitizer);
+            LOGGER.info("Loading config");
+            return ImmersiveAudioConfig.load(configPath, sanitizer);
         } catch (Throwable t) {
-            System.err.println("Failed to load configuration file for Immersive Audio " + t);
-            var config = ImmersiveAudioConfig.defaults(configPath, occlusionSanitizer, exclusionSanitizer, reflectivitySanitizer);
+            LOGGER.warn("Failed to load configuration file for Immersive Audio", t);
+            var config = ImmersiveAudioConfig.defaults(configPath, sanitizer);
 
             try {
                 config.writeChanges();

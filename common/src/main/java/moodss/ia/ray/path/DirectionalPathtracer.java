@@ -110,6 +110,14 @@ public abstract class DirectionalPathtracer {
             return this.nextEntryIdx;
         }
 
+        public float getOcclusion() {
+            return this.occlusion;
+        }
+
+        public float getExclusion() {
+            return this.exclusion;
+        }
+
         public void setNominalEntry(Vector3 nominalDirection) {
             this.nominalEntry = new BiDirectionalEntry(nominalDirection, nominalDirection.length());
         }

@@ -26,11 +26,9 @@ public class DebugBiDirectionalPathtracer extends BiDirectionalPathtracer {
         return this.debug;
     }
 
-    public CompletableFuture<Vector3> pathtrace(Vector3 origin,
-                                                Vector3 listener,
-                                                Raytracer traceFunc,
-                                                float maxDistance,
-                                                Executor executor) {
+    public CompletableFuture<Vector3> computePathtrace(Vector3 origin, Vector3 listener,
+                                                       Raytracer traceFunc,
+                                                       float maxDistance, Executor executor) {
         this.debug.clear();
 
         return super.computePathtrace(origin, listener, traceFunc, maxDistance, executor);

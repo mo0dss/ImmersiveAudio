@@ -78,9 +78,9 @@ public class EAXReverbController {
         context.setEAXReverb(effect, EAXReverbProperties.DENSITY, unit * 0.5F + 0.5F);
         context.setEAXReverb(effect, EAXReverbProperties.DIFFUSION, MathUtils.lerp(0.618F, 1.0F - unit, 1.0F));
         context.setEAXReverb(effect, EAXReverbProperties.DECAY_RATIO_HF, Math.max(0.95F - 0.3F * unit, 0.1F));
-        context.setEAXReverb(effect, EAXReverbProperties.REFLECTIONS_GAIN, Math.max((float) Math.pow(1.0F - unit, 0.5F) + 0.618F, 0.1F));
+        context.setEAXReverb(effect, EAXReverbProperties.REFLECTIONS_GAIN, Math.max(MathUtils.pow(1.0F - unit, 0.5F) + 0.618F, 0.1F));
         context.setEAXReverb(effect, EAXReverbProperties.REFLECTIONS_DELAY, unit * 0.01F);
-        context.setEAXReverb(effect, EAXReverbProperties.LATE_GAIN, (float)(Math.pow(unit, 0.5) + 0.618F));
+        context.setEAXReverb(effect, EAXReverbProperties.LATE_GAIN, MathUtils.pow(unit, 0.5F) + 0.618F);
         context.setEAXReverb(effect, EAXReverbProperties.LATE_DELAY, unit * 0.01F);
     }
 

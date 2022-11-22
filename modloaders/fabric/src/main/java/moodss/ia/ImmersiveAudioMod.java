@@ -1,10 +1,11 @@
 package moodss.ia;
 
 import moodss.ia.ray.PathtracedAudio;
-import moodss.ia.util.BlockSoundGroupAttributes;
+import moodss.ia.util.BlockSoundGroupSanitizer;
 import moodss.ia.util.SupportedSoundTypeUtil;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
+import org.lwjgl.openal.EXTEfx;
 
 public class ImmersiveAudioMod implements ModInitializer {
 
@@ -14,14 +15,12 @@ public class ImmersiveAudioMod implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        BlockSoundGroupAttributes.init();
+        BlockSoundGroupSanitizer.init();
         SupportedSoundTypeUtil.init();
 
         INSTANCE = new ImmersiveAudio(
                 FabricLoader.getInstance().getConfigDir(),
-                BlockSoundGroupAttributes::applyOcclusion,
-                BlockSoundGroupAttributes::applyExclusion,
-                BlockSoundGroupAttributes::applyReflectivity
+                new BlockSoundGroupSanitizer()
         );
 
         AUDIO_PATHTRACER = new PathtracedAudio(INSTANCE.config());

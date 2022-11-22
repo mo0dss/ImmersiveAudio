@@ -4,6 +4,9 @@ import moodss.ia.ImmersiveAudio;
 import moodss.ia.ImmersiveAudioMod;
 import moodss.ia.client.ImmersiveAudioClientMod;
 import moodss.ia.ray.PathtracedAudio;
+import moodss.ia.ray.Ray;
+import moodss.ia.ray.RayHitResult;
+import moodss.ia.ray.trace.Raytracer;
 import moodss.ia.sfx.openal.source.AlSource;
 import moodss.ia.user.ImmersiveAudioConfig;
 import moodss.ia.util.BlockTraceCollisionUtil;
@@ -13,6 +16,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.sound.Source;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.Vec3d;
+import org.jetbrains.annotations.Nullable;
 import org.lwjgl.openal.AL10;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -31,16 +35,15 @@ public class SourceMixin {
     @Inject(method = "setPosition", at = @At("HEAD"), cancellable = true)
     private void onSetPosition(Vec3d pos, CallbackInfo ci) {
         Vector3 position = new Vector3((float)pos.x, (float)pos.y, (float)pos.z);
-        Vector3 cameraPosition = CameraUtil.getActiveCameraPosition();
 
         PathtracedAudio pathtracer = ImmersiveAudioMod.audioPathtracer();
         AlSource source = AlSource.wrap(this.pointer);
 
         ImmersiveAudioConfig config = ImmersiveAudioMod.instance().config();
 
-        Vector3 computedPosition = pathtracer.pathtrace(
+        Vector3 computedPosition = pathtracer.computePathtrace(
                         position,
-                        cameraPosition,
+                        CameraUtil.getCameraData(),
                         BlockTraceCollisionUtil::createCollision,
                         config.raytracing.maxRayDistance(config.world.maxAudioSimulationDistance(MinecraftClient.getInstance().options.getSimulationDistance().getValue())),
                         Util.getMainWorkerExecutor()
