@@ -33,18 +33,6 @@ public class BlockSoundGroupSanitizer implements ImmersiveAudioConfig.Sanitizer 
         pendingTasks.forEach(Runnable::run);
     }
 
-    public static void applyOcclusion(Map<SupportedSoundType, Float> map) {
-        blockOcclusionModifiers.forEach((modifier) -> modifier.apply(map));
-    }
-
-    public static void applyExclusion(Map<SupportedSoundType, Float> map) {
-        blockExclusionModifiers.forEach((modifier) -> modifier.apply(map));
-    }
-
-    public static void applyReflectivity(Map<SupportedSoundType, Float> map) {
-        blockReflectionModifiers.forEach((modifier) -> modifier.apply(map));
-    }
-
     @Override
     public void sanitizeOcclusion(Map<SupportedSoundType, Float> map) {
         blockOcclusionModifiers.forEach((modifier) -> modifier.apply(map));
@@ -61,7 +49,7 @@ public class BlockSoundGroupSanitizer implements ImmersiveAudioConfig.Sanitizer 
     }
 
     @FunctionalInterface
-    public interface BlockModifier {
+    public static interface BlockModifier {
         void apply(Map<SupportedSoundType, Float> map);
     }
 }

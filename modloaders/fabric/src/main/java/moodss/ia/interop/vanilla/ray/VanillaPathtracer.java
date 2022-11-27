@@ -110,7 +110,7 @@ public class VanillaPathtracer extends BiDirectionalPathtracer {
         BlockState state = world.getBlockState(pos);
 
         var blockReflectivity = config.reflectivity.blockReflectivity.getOrDefault(
-                Registry.BLOCK.getKey(state.getBlock()),
+                Registry.BLOCK.getKey(state.getBlock()).orElseThrow(RuntimeException::new).getValue().toString(),
                 -1F
         );
 
@@ -131,7 +131,7 @@ public class VanillaPathtracer extends BiDirectionalPathtracer {
         BlockState state = world.getBlockState(pos);
 
         var blockOcclusion = config.occlusion.blockOcclusion.getOrDefault(
-                Registry.BLOCK.getKey(state.getBlock()),
+                Registry.BLOCK.getKey(state.getBlock()).orElseThrow(RuntimeException::new).getValue().toString(),
                 -1F
         );
 
@@ -152,7 +152,7 @@ public class VanillaPathtracer extends BiDirectionalPathtracer {
         BlockState state = world.getBlockState(pos);
 
         var blockExclusion = config.exclusion.blockExclusion.getOrDefault(
-                Registry.BLOCK.getKey(state.getBlock()),
+                Registry.BLOCK.getKey(state.getBlock()).orElseThrow(RuntimeException::new).getValue().toString(),
                 -1F
         );
 

@@ -83,7 +83,7 @@ public class BiDirectionalPathtracer extends DirectionalPathtracer {
                 for(int bounceUnit = 0; bounceUnit < this.maxRayBounceCount; bounceUnit++) {
                     Ray bounceRay = prevRay.reflect(prevTracedRay);
 
-                    float currentDistance = 0F;
+                    float currentDistance;
 
                     Vector3 bounceEndPosition = bounceRay.pointAt(maxDistance);
                     RayHitResult bounceResult = tracer.create(bounceRay, bounceEndPosition, Ray.getOrigin(result.ray()));

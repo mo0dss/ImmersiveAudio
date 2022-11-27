@@ -83,6 +83,7 @@ public class SoundEngineMixin {
                 int upperAttribute = MemoryUtil.memGetInt(statusPointer + (Integer.BYTES * currentAttribute++));
                 if(upperAttribute == ALC11.ALC_MONO_SOURCES) {
                     cir.setReturnValue(upperAttribute);
+                    break;
                 }
             }
         }

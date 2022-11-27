@@ -9,9 +9,6 @@ import net.minecraft.sound.BlockSoundGroup;
 
 import java.util.Queue;
 
-/**
- * TODO: Move to {@link net.minecraft.util.registry.Registry}
- */
 public class SupportedSoundTypeUtil {
     protected static final Queue<Runnable> pendingTasks = Queues.newArrayDeque();
 

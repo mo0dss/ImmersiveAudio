@@ -1,6 +1,5 @@
 package moodss.ia.client;
 
-import com.google.common.collect.Queues;
 import com.mojang.blaze3d.systems.RenderSystem;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import moodss.ia.ImmersiveAudioMod;
@@ -9,7 +8,6 @@ import net.minecraft.client.render.*;
 import net.minecraft.util.Util;
 
 import java.util.List;
-import java.util.Queue;
 
 public class RayDebug {
 
