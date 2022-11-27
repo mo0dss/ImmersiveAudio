@@ -1,4 +1,4 @@
-package moodss.ia.mixins;
+package moodss.ia.mixins.core;
 
 import net.minecraft.util.shape.VoxelSet;
 import net.minecraft.util.shape.VoxelShape;

@@ -21,6 +21,7 @@ public class BiDirectionalPathtracer extends DirectionalPathtracer {
         this.additionalRayBounces = additionalRayBounces;
     }
 
+    //TODO: Cleanup
     public CompletableFuture<Vector3> computePathtrace(Vector3 origin, Vector3 listener,
                                                        Raytracer tracer,
                                                        float maxDistance, Executor executor) {

@@ -35,6 +35,12 @@ public class AlAudioDeviceContext implements AudioDeviceContext {
         if(!this.device.isEfxSupported()) {
             return;
         }
+
+        if(gain < 0F || gain > 1F) {
+            System.err.println("Unable to apply gain " + gain + new Throwable());
+            return;
+        }
+
         var handle = filter.getHandle();
 
         switch(filter.type()) {
@@ -63,6 +69,12 @@ public class AlAudioDeviceContext implements AudioDeviceContext {
         if(!this.device.isEfxSupported()) {
             return;
         }
+
+        if(gainLF < 0F || gainLF > 1F) {
+            System.err.println("Unable to apply gainLF " + gainLF + new Throwable());
+            return;
+        }
+
         var handle = filter.getHandle();
 
         switch (filter.type()) {
@@ -90,6 +102,12 @@ public class AlAudioDeviceContext implements AudioDeviceContext {
         if(!this.device.isEfxSupported()) {
             return;
         }
+
+        if(gainHF < 0F || gainHF > 1F) {
+            System.err.println("Unable to apply gainHF " + gainHF + new Throwable());
+            return;
+        }
+
         var handle = filter.getHandle();
 
         switch (filter.type()) {

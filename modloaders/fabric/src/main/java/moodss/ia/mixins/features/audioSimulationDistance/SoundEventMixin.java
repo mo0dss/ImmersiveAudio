@@ -1,4 +1,4 @@
-package moodss.ia.mixins;
+package moodss.ia.mixins.features.audioSimulationDistance;
 
 import moodss.ia.ImmersiveAudioMod;
 import net.minecraft.client.MinecraftClient;

@@ -9,14 +9,20 @@
 	"conformVisibility": true
   },
   "client": [
-	"DebugRendererMixin",
-	"SoundEngineMixin",
-	"SourceMixin",
+	"core.DebugRendererMixin",
+	"core.SoundEngineMixin",
+	"features.audioSimulationDistance.SourceMixin",
+	"features.bidirectionalAudio.SourceMixin",
+	"features.radius.SourceMixin",
+    "features.bidirectionalAudio.reverb.SourceMixin",
+	"features.soft.SourceMixin",
+	"features.speedOfSound.SoundEngineMixin",
+	"features.stereoAngles.SourceMixin",
 	"speedup.SoundEngineMixin"
   ],
   "mixins": [
-	"SoundEventMixin",
-	"VoxelShapeAccessor",
-	"VoxelShapeMixin"
+	"core.VoxelShapeAccessor",
+	"core.VoxelShapeMixin",
+	"features.audioSimulationDistance.SoundEventMixin"
   ]
 }

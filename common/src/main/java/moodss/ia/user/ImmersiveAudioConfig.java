@@ -30,6 +30,18 @@ public class ImmersiveAudioConfig {
      */
     public int stereoSources = 32;
 
+    /**
+     * Whether reverb effects shall be enabled or not.
+     * <p>
+     * Requires {@link ImmersiveAudioConfig#bidirectionalAudio}
+     */
+    public boolean eaxReverb = true;
+
+    /**
+     * Whether audio sources will be positioned based off a raycast
+     */
+    public boolean bidirectionalAudio = true;
+
     public final World world = new World();
     public final Raytracing raytracing = new Raytracing();
     public final Occlusion occlusion = new Occlusion();

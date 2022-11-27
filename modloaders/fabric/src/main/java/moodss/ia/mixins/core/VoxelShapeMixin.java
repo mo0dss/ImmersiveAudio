@@ -1,4 +1,4 @@
-package moodss.ia.mixins;
+package moodss.ia.mixins.core;
 
 import moodss.ia.mixin.VoxelShapeExt;
 import net.minecraft.util.math.Direction;

@@ -1,6 +1,5 @@
-package moodss.ia.util;
+package moodss.ia.interop.vanilla.ray;
 
-import moodss.ia.ray.BlockRayHitResult;
 import moodss.ia.ray.Ray;
 import moodss.ia.ray.RayHitResult;
 import moodss.plummet.math.MathUtils;
@@ -58,7 +57,7 @@ public class BlockTraceCollisionUtil {
             if (chunk != null) {
                 // We operate directly on chunk sections to avoid interacting with BlockPos and to squeeze out as much
                 // performance as possible here
-                ChunkSection section = chunk.getSectionArray()[chunk.getSectionIndex(pos.getY())];
+                ChunkSection section = chunk.getSectionArray()[Math.min(0, chunk.getSectionIndex(pos.getY()))];
 
                 // If the section doesn't exist or it's empty, assume that the block is air
                 if (section != null && !section.isEmpty()) {

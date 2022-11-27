@@ -69,6 +69,10 @@ public class EAXReverbController {
         return this.filters[Math.floorMod(idx, this.filters.length)];
     }
 
+    public int getEffectCount() {
+        return this.effects.length;
+    }
+
     public Filter getDirectFilter() {
         return this.directFilter;
     }

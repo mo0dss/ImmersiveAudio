@@ -1,25 +1,29 @@
-package moodss.ia.mixins;
+package moodss.ia.client;
 
+import com.google.common.collect.Queues;
 import com.mojang.blaze3d.systems.RenderSystem;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import moodss.ia.ImmersiveAudioMod;
-import moodss.ia.ray.PathtracedAudio;
+import moodss.plummet.math.vec.Vector3;
 import net.minecraft.client.render.*;
-import net.minecraft.client.render.debug.DebugRenderer;
-import net.minecraft.client.util.math.MatrixStack;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import net.minecraft.util.Util;
 
-@Mixin(DebugRenderer.class)
-public class DebugRendererMixin {
+import java.util.List;
+import java.util.Queue;
 
-    @Inject(method = "render", at = @At("HEAD"))
-    private void onRender(MatrixStack matrices, VertexConsumerProvider.Immediate buffers, double cameraX, double cameraY, double cameraZ, CallbackInfo ci) {
-        if(!ImmersiveAudioMod.instance().config().raytracing.showDebug) {
-            return;
-        }
+public class RayDebug {
 
+    private static final List<Ray> rays = new ObjectArrayList<>();
+
+    public static void recordRay(Vector3 from, Vector3 to, int color) {
+        var time = Util.getMeasuringTimeMs();
+
+        rays.add(new Ray(from, to, color, time));
+
+        rays.removeIf(ray -> (time - ray.startTime) > ImmersiveAudioMod.instance().config().raytracing.maxRayCount);
+    }
+
+    public static void renderDebug(float cameraX, float cameraY, float cameraZ) {
         Shader prevShader = RenderSystem.getShader();
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
         {
@@ -34,13 +38,12 @@ public class DebugRendererMixin {
 
                     buffer.begin(VertexFormat.DrawMode.DEBUG_LINES, VertexFormats.POSITION_COLOR);
                     {
-                        PathtracedAudio audio = ImmersiveAudioMod.audioPathtracer();
-                        audio.getDebug().forEachRay((ray) -> {
-                            if(ray != null) {
+                        synchronized (rays) {
+                            for(Ray ray : rays) {
                                 buffer.vertex(ray.start().getX() - cameraX, ray.start().getY() - cameraY, ray.start().getZ() - cameraZ).color(ray.color()).next();
                                 buffer.vertex(ray.to().getX() - cameraX, ray.to().getY() - cameraY, ray.to().getZ() - cameraZ).color(ray.color()).next();
                             }
-                        });
+                        }
                     }
                     tessellator.draw();
                 }
@@ -50,4 +53,7 @@ public class DebugRendererMixin {
         }
         RenderSystem.setShader(() -> prevShader);
     }
+
+    public record Ray(Vector3 start, Vector3 to, int color, long startTime)
+    {}
 }

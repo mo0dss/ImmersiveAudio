@@ -18,7 +18,7 @@ public class AlSource extends AlObject implements Source {
         return new AlSource(handle);
     }
 
-    public static int getHandle(AlSource source) {
-        return source.getHandle();
+    public static int getHandle(Source source) {
+        return ((AlSource) source).getHandle();
     }
 }

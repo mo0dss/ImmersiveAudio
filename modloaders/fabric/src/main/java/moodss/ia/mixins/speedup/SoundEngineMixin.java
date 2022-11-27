@@ -1,12 +1,18 @@
 package moodss.ia.mixins.speedup;
 
+import com.mojang.logging.LogUtils;
 import net.minecraft.client.sound.SoundEngine;
+import org.lwjgl.openal.AL10;
 import org.lwjgl.openal.ALC10;
+import org.lwjgl.openal.ALC11;
 import org.lwjgl.openal.SOFTHRTF;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.*;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(SoundEngine.class)
 public class SoundEngineMixin {
@@ -48,6 +54,47 @@ public class SoundEngineMixin {
 
             MemoryUtil.nmemFree(pointer);
         }
+    }
+
+    @Inject(method = "getMonoSourceCount", at = @At("HEAD"), cancellable = true)
+    private void onGetMonoSourceCount(CallbackInfoReturnable<Integer> cir) {
+        try(MemoryStack stack = MemoryStack.stackPush()) {
+            int attributes = getInteger(this.devicePointer, ALC10.ALC_ATTRIBUTES_SIZE);
+
+            if (checkALCErrors(this.devicePointer, "Get attributes size")) {
+                throw new IllegalStateException("Failed to get OpenAL attributes");
+            }
+
+            long statusPointer = stack.ncalloc(Integer.BYTES, attributes, Integer.BYTES);
+            ALC10.nalcGetIntegerv(this.devicePointer, ALC10.ALC_ALL_ATTRIBUTES, attributes, statusPointer);
+
+            if (checkALCErrors(this.devicePointer, "Get attributes")) {
+                throw new IllegalStateException("Failed to get OpenAL attributes");
+            }
+
+            int currentAttribute = 0;
+
+            while(currentAttribute < attributes) {
+                int lowerAttribute = MemoryUtil.memGetInt(statusPointer + (Integer.BYTES * currentAttribute++));
+                if(lowerAttribute == 0) {
+                    break;
+                }
+
+                int upperAttribute = MemoryUtil.memGetInt(statusPointer + (Integer.BYTES * currentAttribute++));
+                if(upperAttribute == ALC11.ALC_MONO_SOURCES) {
+                    cir.setReturnValue(upperAttribute);
+                }
+            }
+        }
+    }
+
+    private static boolean checkALCErrors(long deviceHandle, String sectionName) {
+        int error = ALC10.alcGetError(deviceHandle);
+        if(error != 0) {
+            LogUtils.getLogger().error("{}{}: {}", sectionName, deviceHandle, AL10.alGetString(AL10.alGetInteger(error)));
+            return true;
+        }
+        return false;
     }
 
     @Unique

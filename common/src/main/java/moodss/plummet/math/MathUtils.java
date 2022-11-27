@@ -55,11 +55,11 @@ public class MathUtils {
         return Math.min(value, max);
     }
 
-    public static int average(float[] values, int size) {
+    public static int average(float[] values, int preferred, int size) {
         float sum = 0F;
         float weightedSum = 0F;
 
-        for(int idx = 1; idx < size; idx++) {
+        for(int idx = preferred; idx < size; idx++) {
             sum += values[idx];
             weightedSum += idx * values[idx];
         }

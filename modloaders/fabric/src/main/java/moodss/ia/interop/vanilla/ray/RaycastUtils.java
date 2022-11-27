@@ -1,10 +1,9 @@
-package moodss.ia.util;
+package moodss.ia.interop.vanilla.ray;
 
 import moodss.ia.mixin.VoxelShapeExt;
-import moodss.ia.mixins.VoxelShapeAccessor;
-import moodss.ia.ray.BlockRayHitResult;
+import moodss.ia.mixins.core.VoxelShapeAccessor;
 import moodss.ia.ray.Ray;
-import moodss.ia.ray.RayHitResultHelper;
+import moodss.ia.util.DirectionUtil;
 import moodss.plummet.math.MathUtils;
 import moodss.plummet.math.vec.Vector3;
 import net.minecraft.block.BlockState;

@@ -42,6 +42,9 @@ public class Vector3 {
 
     public static final Vector3[] ALL = new Vector3[] {NEGATIVE_X, NEGATIVE_Y, NEGATIVE_Z, POSITIVE_X, POSITIVE_Y, POSITIVE_Z};
 
+    /**
+     * The components belonging to this vector
+     */
     private float x, y, z;
 
     /**
@@ -68,8 +71,7 @@ public class Vector3 {
     public void normalize()
     {
         float length = length();
-        if (length == 0)
-        {
+        if (length == 0) {
             return;
         }
 
@@ -327,6 +329,21 @@ public class Vector3 {
         float prevOccurrence = Float.MIN_VALUE;
         for(Vector3 dir : ALL) {
             float dot = Vector3.dot(facing, dir.getX(), dir.getY(), dir.getZ());
+            if(dot > prevOccurrence) {
+                prevOccurrence = dot;
+                direction = dir;
+            }
+        }
+
+        return direction;
+    }
+
+    public static Vector3 getFacing(float x, float y, float z) {
+        Vector3 direction = Vector3.NEGATIVE_Z;
+
+        float prevOccurrence = Float.MIN_VALUE;
+        for(Vector3 dir : ALL) {
+            float dot = Vector3.dot(dir, x, y, z);
             if(dot > prevOccurrence) {
                 prevOccurrence = dot;
                 direction = dir;

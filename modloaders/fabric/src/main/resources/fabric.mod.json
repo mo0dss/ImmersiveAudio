@@ -17,6 +17,9 @@
   "entrypoints": {
     "main": [
       "moodss.ia.ImmersiveAudioMod"
+    ],
+    "client" : [
+      "moodss.ia.client.ImmersiveAudioClientMod"
     ]
   },
   "mixins": [

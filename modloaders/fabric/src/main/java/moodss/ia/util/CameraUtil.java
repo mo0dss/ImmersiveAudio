@@ -2,7 +2,7 @@ package moodss.ia.util;
 
 import moodss.ia.client.camera.StoredCameraData;
 import moodss.ia.fluid.FluidView;
-import moodss.ia.fluid.ProjectedFluidView;
+import moodss.ia.interop.vanilla.fluid.ProjectedFluidView;
 import moodss.plummet.math.vec.Vector3;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.Camera;
@@ -11,6 +11,7 @@ import net.minecraft.util.math.Vec3f;
 import org.apache.commons.lang3.Validate;
 
 public class CameraUtil {
+
     public static StoredCameraData<FluidView> getCameraData() {
         MinecraftClient client = MinecraftClient.getInstance();
         Camera camera = client.gameRenderer.getCamera();

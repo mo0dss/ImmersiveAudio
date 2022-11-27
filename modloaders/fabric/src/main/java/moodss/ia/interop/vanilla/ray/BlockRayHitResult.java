@@ -1,5 +1,7 @@
-package moodss.ia.ray;
+package moodss.ia.interop.vanilla.ray;
 
+import moodss.ia.ray.Ray;
+import moodss.ia.ray.RayHitResult;
 import moodss.plummet.math.vec.Vector3;
 import net.minecraft.util.math.BlockPos;
 

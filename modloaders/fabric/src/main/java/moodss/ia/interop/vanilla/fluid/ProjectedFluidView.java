@@ -1,5 +1,6 @@
-package moodss.ia.fluid;
+package moodss.ia.interop.vanilla.fluid;
 
+import moodss.ia.fluid.FluidView;
 import net.minecraft.client.MinecraftClient;
 import org.apache.commons.lang3.Validate;
 
